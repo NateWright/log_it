@@ -1,0 +1,6 @@
+{
+  "appTitle": "log_it",
+  "@appTitle": {
+    "description": "The title of the application"
+  }
+}
