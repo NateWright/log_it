@@ -13,8 +13,13 @@ class SampleItemDetailsView extends StatelessWidget {
         title: const Text('Item Details'),
       ),
       body: const Center(
-        child: Text('More Information Here'),
+        child: Text('More Information Here testing'),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: FloatingActionButton(
+          onPressed: () => {},
+          tooltip: 'Add new data',
+          child: const Icon(Icons.add)),
     );
   }
 }
