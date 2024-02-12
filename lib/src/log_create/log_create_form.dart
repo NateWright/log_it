@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:log_it/src/components/dropdown.dart';
+import 'package:log_it/src/log_provider/log_provider.dart';
+import 'package:log_it/src/log_provider/log_item.dart';
+import 'package:provider/provider.dart';
 
 const List<String> _intervalUnits = ['hours', 'days', 'months', 'years'];
 
@@ -172,7 +175,7 @@ class LogCreateFormState extends State<LogCreateForm> {
                                 child: Dropdown(
                                   itemList: _intervalUnits,
                                   onChanged: (value) {
-                                    print(value);
+                                    // print(value);
                                   },
                                 ),
                               ),
@@ -182,19 +185,25 @@ class LogCreateFormState extends State<LogCreateForm> {
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            // Validate returns true if the form is valid, or false otherwise.
-                            if (_formKey.currentState!.validate()) {
-                              // If the form is valid, display a snackbar. In the real world,
-                              // you'd often call a server or save the information in a database.
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('Processing Data')),
-                              );
-                            }
+                        child: Consumer<LogModel>(
+                          builder: (context, logs, child) {
+                            return ElevatedButton(
+                              onPressed: () {
+                                // Validate returns true if the form is valid, or false otherwise.
+                                if (_formKey.currentState!.validate()) {
+                                  // If the form is valid, display a snackbar. In the real world,
+                                  // you'd often call a server or save the information in a database.
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text('Processing Data')),
+                                  );
+                                  logs.add(LogItem(title));
+                                  Navigator.pop(context);
+                                }
+                              },
+                              child: const Text('Submit'),
+                            );
                           },
-                          child: const Text('Submit'),
                         ),
                       ),
                     ].expand(
