@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:log_it/src/components/dropdown.dart';
+import 'package:log_it/src/components/pair.dart';
 import 'package:log_it/src/log_provider/log_provider.dart';
 import 'package:log_it/src/log_provider/log_item.dart';
 import 'package:provider/provider.dart';
-
-const List<String> _intervalUnits = ['hours', 'days', 'months', 'years'];
 
 class LogCreateFormPage extends StatelessWidget {
   const LogCreateFormPage({
@@ -51,9 +50,10 @@ class LogCreateFormState extends State<LogCreateForm> {
 
   String title = '';
   String description = '';
-  DateTime startDate = DateTime.now();
-  bool enableEndDate = true;
-  DateTime endDate = DateTime.now();
+  DateTimeRange dates =
+      DateTimeRange(start: DateTime.now(), end: DateTime.now());
+  TimeOfDay startTime = TimeOfDay.now();
+  TimeInterval interval = TimeInterval(0, TimeIntervalUnits.minutes);
 
   @override
   Widget build(BuildContext context) {
@@ -100,46 +100,29 @@ class LogCreateFormState extends State<LogCreateForm> {
                           labelText: 'Description',
                         ),
                         onChanged: (value) {
-                          description = value;
+                          setState(() {
+                            description = value;
+                          });
                         },
                         maxLines: 5,
                       ),
                       _FormDatePicker(
-                        name: 'Start Date',
-                        date: startDate,
+                        name: 'Dates',
+                        date: dates,
                         onChanged: (value) {
                           setState(() {
-                            startDate = value;
+                            dates = value;
                           });
                         },
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text('End Date',
-                              style: Theme.of(context).textTheme.bodyLarge),
-                          Switch(
-                            value: enableEndDate,
-                            onChanged: (enabled) {
-                              setState(() {
-                                enableEndDate = enabled;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                      Visibility(
-                        visible: enableEndDate,
-                        child: _FormDatePicker(
-                          name: 'End Date',
-                          date: endDate,
-                          onChanged: (value) {
-                            setState(() {
-                              endDate = value;
-                            });
-                          },
-                        ),
+                      _FormTimePicker(
+                        time: startTime,
+                        onChanged: (value) {
+                          setState(() {
+                            startTime = value;
+                          });
+                        },
+                        name: 'Start Time',
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,6 +148,12 @@ class LogCreateFormState extends State<LogCreateForm> {
                                   inputFormatters: <TextInputFormatter>[
                                     FilteringTextInputFormatter.digitsOnly
                                   ], // Only numbers can be entered
+                                  initialValue: interval.toString(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      interval.interval = int.parse(value);
+                                    });
+                                  },
                                 ),
                               ),
                               const Spacer(
@@ -173,9 +162,15 @@ class LogCreateFormState extends State<LogCreateForm> {
                               Expanded(
                                 flex: 1,
                                 child: Dropdown(
-                                  itemList: _intervalUnits,
+                                  itemList: TimeIntervalUnits.values
+                                      .map((e) =>
+                                          Pair<String, TimeIntervalUnits>(
+                                              e.name, e))
+                                      .toList(),
                                   onChanged: (value) {
-                                    // print(value);
+                                    setState(() {
+                                      interval.unit = value;
+                                    });
                                   },
                                 ),
                               ),
@@ -193,11 +188,12 @@ class LogCreateFormState extends State<LogCreateForm> {
                                 if (_formKey.currentState!.validate()) {
                                   // If the form is valid, display a snackbar. In the real world,
                                   // you'd often call a server or save the information in a database.
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text('Processing Data')),
-                                  );
-                                  logs.add(LogItem(title));
+                                  // ScaffoldMessenger.of(context).showSnackBar(
+                                  //   const SnackBar(
+                                  //       content: Text('Processing Data')),
+                                  // );
+                                  logs.add(LogItem(title, description, dates,
+                                      startTime, interval));
                                   Navigator.pop(context);
                                 }
                               },
@@ -224,8 +220,8 @@ class LogCreateFormState extends State<LogCreateForm> {
 }
 
 class _FormDatePicker extends StatefulWidget {
-  final DateTime date;
-  final ValueChanged<DateTime> onChanged;
+  final DateTimeRange date;
+  final ValueChanged<DateTimeRange> onChanged;
   final String name;
 
   const _FormDatePicker({
@@ -254,7 +250,7 @@ class _FormDatePickerState extends State<_FormDatePicker> {
               style: Theme.of(context).textTheme.bodyLarge,
             ),
             Text(
-              intl.DateFormat.yMd().format(widget.date),
+              '${intl.DateFormat.yMd().format(widget.date.start)} - ${widget.date.start == widget.date.end ? 'endless' : intl.DateFormat.yMd().format(widget.date.end)}',
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ],
@@ -262,9 +258,9 @@ class _FormDatePickerState extends State<_FormDatePicker> {
         TextButton(
           child: const Text('Edit'),
           onPressed: () async {
-            var newDate = await showDatePicker(
+            var newDate = await showDateRangePicker(
               context: context,
-              initialDate: widget.date,
+              initialDateRange: widget.date,
               firstDate: DateTime(1900),
               lastDate: DateTime(2100),
             );
@@ -275,6 +271,63 @@ class _FormDatePickerState extends State<_FormDatePicker> {
             }
 
             widget.onChanged(newDate);
+          },
+        )
+      ],
+    );
+  }
+}
+
+class _FormTimePicker extends StatefulWidget {
+  final TimeOfDay time;
+  final ValueChanged<TimeOfDay> onChanged;
+  final String name;
+
+  const _FormTimePicker({
+    required this.time,
+    required this.onChanged,
+    required this.name,
+  });
+
+  @override
+  State<_FormTimePicker> createState() => _FormTimePickerState();
+}
+
+class _FormTimePickerState extends State<_FormTimePicker> {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Text(
+              widget.name,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            Text(
+              widget.time.format(context),
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+          ],
+        ),
+        TextButton(
+          child: const Text('Edit'),
+          onPressed: () async {
+            var newTime = await showTimePicker(
+              context: context,
+              initialTime: widget.time,
+            );
+
+            // Don't change the date if the date picker returns null.
+            if (newTime == null) {
+              return;
+            }
+
+            widget.onChanged(newTime);
           },
         )
       ],

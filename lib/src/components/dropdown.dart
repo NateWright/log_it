@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:log_it/src/components/pair.dart';
 
-class Dropdown extends StatefulWidget {
-  final List<String> itemList;
-  final ValueChanged<String> onChanged;
+class Dropdown<T> extends StatefulWidget {
+  final List<Pair<String, T>> itemList;
+  final ValueChanged<T> onChanged;
   const Dropdown({
     super.key,
     required this.itemList,
@@ -13,12 +14,12 @@ class Dropdown extends StatefulWidget {
   State<Dropdown> createState() => _DropdownState();
 }
 
-class _DropdownState extends State<Dropdown> {
+class _DropdownState<T> extends State<Dropdown> {
   @override
   Widget build(BuildContext context) {
-    return DropdownMenu<String>(
-      initialSelection: widget.itemList.first,
-      onSelected: (String? value) {
+    return DropdownMenu<T>(
+      initialSelection: widget.itemList.first.second,
+      onSelected: (T? value) {
         // This is called when the user selects an item.
         setState(() {
           if (value == null) {
@@ -28,12 +29,10 @@ class _DropdownState extends State<Dropdown> {
             return;
           }
           widget.onChanged(value);
-          // dropdownValue = value!;
         });
       },
-      dropdownMenuEntries:
-          widget.itemList.map<DropdownMenuEntry<String>>((String value) {
-        return DropdownMenuEntry<String>(value: value, label: value);
+      dropdownMenuEntries: widget.itemList.map<DropdownMenuEntry<T>>((Pair p) {
+        return DropdownMenuEntry<T>(value: p.second, label: p.first);
       }).toList(),
     );
   }
