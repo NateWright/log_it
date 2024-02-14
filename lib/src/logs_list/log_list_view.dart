@@ -5,7 +5,6 @@ import 'package:log_it/src/logs_list/log_list_item.dart';
 import 'package:provider/provider.dart';
 
 import '../settings/settings_view.dart';
-import '../sample_feature/sample_item_details_view.dart';
 
 /// Displays a list of SampleItems.
 class LogsListView extends StatelessWidget {
@@ -17,9 +16,15 @@ class LogsListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Logs'),
+        elevation: 4,
+        shadowColor: theme.shadowColor,
+        title: Text(
+          'Logs',
+          style: theme.textTheme.headlineLarge,
+        ),
         centerTitle: true,
         actions: [
           IconButton(

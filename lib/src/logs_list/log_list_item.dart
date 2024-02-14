@@ -9,18 +9,19 @@ class LogListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return ListTile(
-      title: Text(
-        log.title,
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 25,
-        ),
-      ),
+      title: Text(log.title, style: theme.textTheme.displaySmall),
       // leading: const CircleAvatar(
       //   // Display the Flutter Logo image asset.
       //   foregroundImage: AssetImage('assets/images/flutter_logo.png'),
       // ),
+      subtitle: log.description.isNotEmpty ? Text(log.description) : null,
+      trailing: Icon(
+        Icons.navigate_next,
+        size: theme.textTheme.displaySmall!.fontSize,
+      ),
+      dense: true,
       onTap: () {
         // Navigate to the details page. If the user leaves and returns to
         // the app after it has been killed while running in the
