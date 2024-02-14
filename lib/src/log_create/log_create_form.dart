@@ -163,7 +163,16 @@ class LogCreateFormState extends State<LogCreateForm> {
                                       keyboardType: TextInputType.number,
                                       inputFormatters: <TextInputFormatter>[
                                         FilteringTextInputFormatter.digitsOnly
-                                      ], // Only numbers can be entered
+                                      ],
+                                      validator: (value) {
+                                        if (!hasNotifications) {
+                                          return null;
+                                        }
+                                        if (value == null || value.isEmpty) {
+                                          return 'Please enter an interval';
+                                        }
+                                        return null;
+                                      },
                                       onChanged: (value) {
                                         setState(() {
                                           interval.interval = int.parse(value);
