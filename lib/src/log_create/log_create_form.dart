@@ -176,17 +176,25 @@ class LogCreateFormState extends State<LogCreateForm> {
                                   ),
                                   Expanded(
                                     flex: 1,
-                                    child: Dropdown(
-                                      itemList: TimeIntervalUnits.values
-                                          .map((e) =>
-                                              Pair<String, TimeIntervalUnits>(
-                                                  e.name, e))
-                                          .toList(),
+                                    child: DropdownButton(
+                                      value: interval.unit,
                                       onChanged: (value) {
+                                        if (value == null) {
+                                          return;
+                                        }
                                         setState(() {
                                           interval.unit = value;
                                         });
                                       },
+                                      items: [
+                                        for (var item
+                                            in TimeIntervalUnits.values)
+                                          DropdownMenuItem(
+                                            value: item,
+                                            child:
+                                                Text(item.name.toUpperCase()),
+                                          )
+                                      ],
                                     ),
                                   ),
                                 ],
