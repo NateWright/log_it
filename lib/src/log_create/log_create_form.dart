@@ -4,7 +4,7 @@ import 'package:intl/intl.dart' as intl;
 import 'package:log_it/src/components/dropdown.dart';
 import 'package:log_it/src/components/pair.dart';
 import 'package:log_it/src/log_provider/log_provider.dart';
-import 'package:log_it/src/log_provider/log_item.dart';
+import 'package:log_it/src/log_provider/log.dart';
 import 'package:provider/provider.dart';
 
 class LogCreateFormPage extends StatelessWidget {
@@ -50,10 +50,11 @@ class LogCreateFormState extends State<LogCreateForm> {
 
   String title = '';
   String description = '';
+  bool hasNotifications = false;
   DateTimeRange dates =
       DateTimeRange(start: DateTime.now(), end: DateTime.now());
   TimeOfDay startTime = TimeOfDay.now();
-  TimeInterval interval = TimeInterval(0, TimeIntervalUnits.minutes);
+  TimeInterval interval = TimeInterval(1, TimeIntervalUnits.minutes);
 
   @override
   Widget build(BuildContext context) {
@@ -106,77 +107,100 @@ class LogCreateFormState extends State<LogCreateForm> {
                         },
                         maxLines: 5,
                       ),
-                      _FormDatePicker(
-                        name: 'Dates',
-                        date: dates,
-                        onChanged: (value) {
-                          setState(() {
-                            dates = value;
-                          });
-                        },
-                      ),
-                      _FormTimePicker(
-                        time: startTime,
-                        onChanged: (value) {
-                          setState(() {
-                            startTime = value;
-                          });
-                        },
-                        name: 'Start Time',
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          const Text(
-                            'Notifcation Interval',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 18),
-                          ),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Expanded(
-                                flex: 1,
-                                child: TextFormField(
-                                  decoration: const InputDecoration(
-                                    labelText: 'Interval',
-                                    hintText: '1',
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                  inputFormatters: <TextInputFormatter>[
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ], // Only numbers can be entered
-                                  initialValue: interval.toString(),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      interval.interval = int.parse(value);
-                                    });
-                                  },
-                                ),
-                              ),
-                              const Spacer(
-                                flex: 1,
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: Dropdown(
-                                  itemList: TimeIntervalUnits.values
-                                      .map((e) =>
-                                          Pair<String, TimeIntervalUnits>(
-                                              e.name, e))
-                                      .toList(),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      interval.unit = value;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ],
+                          Text('Enable Notifications',
+                              style: Theme.of(context).textTheme.bodyLarge),
+                          Switch(
+                            value: hasNotifications,
+                            onChanged: (enabled) {
+                              setState(() {
+                                hasNotifications = enabled;
+                              });
+                            },
                           ),
                         ],
+                      ),
+                      Visibility(
+                        visible: hasNotifications,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ...[
+                              _FormDatePicker(
+                                name: 'Dates',
+                                date: dates,
+                                onChanged: (value) {
+                                  setState(() {
+                                    dates = value;
+                                  });
+                                },
+                              ),
+                              _FormTimePicker(
+                                time: startTime,
+                                onChanged: (value) {
+                                  setState(() {
+                                    startTime = value;
+                                  });
+                                },
+                                name: 'Start Time',
+                              ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Expanded(
+                                    flex: 1,
+                                    child: TextFormField(
+                                      decoration: const InputDecoration(
+                                        labelText: 'Interval',
+                                        hintText: '1',
+                                      ),
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: <TextInputFormatter>[
+                                        FilteringTextInputFormatter.digitsOnly
+                                      ], // Only numbers can be entered
+                                      onChanged: (value) {
+                                        setState(() {
+                                          interval.interval = int.parse(value);
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  const Spacer(
+                                    flex: 1,
+                                  ),
+                                  Expanded(
+                                    flex: 1,
+                                    child: Dropdown(
+                                      itemList: TimeIntervalUnits.values
+                                          .map((e) =>
+                                              Pair<String, TimeIntervalUnits>(
+                                                  e.name, e))
+                                          .toList(),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          interval.unit = value;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ].expand(
+                              (widget) => [
+                                widget,
+                                const SizedBox(
+                                  height: 24,
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -192,8 +216,14 @@ class LogCreateFormState extends State<LogCreateForm> {
                                   //   const SnackBar(
                                   //       content: Text('Processing Data')),
                                   // );
-                                  logs.add(LogItem(title, description, dates,
-                                      startTime, interval));
+                                  logs.add(LogItem(
+                                    title,
+                                    description,
+                                    hasNotifications,
+                                    dates,
+                                    startTime,
+                                    interval,
+                                  ));
                                   Navigator.pop(context);
                                 }
                               },

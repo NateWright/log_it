@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:log_it/src/log_create/log_create_form.dart';
 import 'package:log_it/src/log_provider/log_provider.dart';
+import 'package:log_it/src/logs_list/log_list_item.dart';
 import 'package:provider/provider.dart';
 
 import '../settings/settings_view.dart';
@@ -45,7 +46,7 @@ class LogsListView extends StatelessWidget {
       ),
       body: Consumer<LogModel>(
         builder: (context, value, child) {
-          return ListView.builder(
+          return ListView.separated(
             // Providing a restorationId allows the ListView to restore the
             // scroll position when a user leaves and returns to the app after it
             // has been killed while running in the background.
@@ -54,21 +55,13 @@ class LogsListView extends StatelessWidget {
             itemBuilder: (BuildContext context, int index) {
               final item = value.items[index];
 
-              return ListTile(
-                title: Center(child: Text(item.title)),
-                // leading: const CircleAvatar(
-                //   // Display the Flutter Logo image asset.
-                //   foregroundImage: AssetImage('assets/images/flutter_logo.png'),
-                // ),
-                onTap: () {
-                  // Navigate to the details page. If the user leaves and returns to
-                  // the app after it has been killed while running in the
-                  // background, the navigation stack is restored.
-                  Navigator.restorablePushNamed(
-                    context,
-                    SampleItemDetailsView.routeName,
-                  );
-                },
+              return LogListItem(item);
+            },
+            separatorBuilder: (context, index) {
+              final theme = Theme.of(context);
+              return Divider(
+                color: theme.colorScheme.secondary,
+                // color: Colors.white,
               );
             },
           );
