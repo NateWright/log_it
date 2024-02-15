@@ -46,13 +46,16 @@ class LogCreateFormState extends State<LogCreateForm> {
   // not a GlobalKey<MyCustomFormState>.
   final _formKey = GlobalKey<FormState>();
 
-  String title = '';
-  String description = '';
-  bool hasNotifications = false;
-  DateTimeRange dates =
-      DateTimeRange(start: DateTime.now(), end: DateTime.now());
-  TimeOfDay startTime = TimeOfDay.now();
-  TimeInterval interval = TimeInterval(1, TimeIntervalUnits.minutes);
+  LogItem log = LogItem(
+    title: '',
+    description: '',
+    dataType: DataType.number,
+    unit: '',
+    hasNotifications: false,
+    dateRange: DateTimeRange(start: DateTime.now(), end: DateTime.now()),
+    startTime: TimeOfDay.now(),
+    interval: TimeInterval(1, TimeIntervalUnits.minutes),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +90,7 @@ class LogCreateFormState extends State<LogCreateForm> {
                         },
                         onChanged: (value) {
                           setState(() {
-                            title = value;
+                            log.title = value;
                           });
                         },
                       ),
@@ -100,7 +103,7 @@ class LogCreateFormState extends State<LogCreateForm> {
                         ),
                         onChanged: (value) {
                           setState(() {
-                            description = value;
+                            log.description = value;
                           });
                         },
                         maxLines: 5,
@@ -112,35 +115,35 @@ class LogCreateFormState extends State<LogCreateForm> {
                           Text('Enable Notifications',
                               style: Theme.of(context).textTheme.bodyLarge),
                           Switch(
-                            value: hasNotifications,
+                            value: log.hasNotifications,
                             onChanged: (enabled) {
                               setState(() {
-                                hasNotifications = enabled;
+                                log.hasNotifications = enabled;
                               });
                             },
                           ),
                         ],
                       ),
                       Visibility(
-                        visible: hasNotifications,
+                        visible: log.hasNotifications,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             ...[
                               _FormDatePicker(
                                 name: 'Dates',
-                                date: dates,
+                                date: log.dateRange,
                                 onChanged: (value) {
                                   setState(() {
-                                    dates = value;
+                                    log.dateRange = value;
                                   });
                                 },
                               ),
                               _FormTimePicker(
-                                time: startTime,
+                                time: log.startTime,
                                 onChanged: (value) {
                                   setState(() {
-                                    startTime = value;
+                                    log.startTime = value;
                                   });
                                 },
                                 name: 'Start Time',
@@ -163,7 +166,7 @@ class LogCreateFormState extends State<LogCreateForm> {
                                         FilteringTextInputFormatter.digitsOnly
                                       ],
                                       validator: (value) {
-                                        if (!hasNotifications) {
+                                        if (!log.hasNotifications) {
                                           return null;
                                         }
                                         if (value == null || value.isEmpty) {
@@ -173,7 +176,8 @@ class LogCreateFormState extends State<LogCreateForm> {
                                       },
                                       onChanged: (value) {
                                         setState(() {
-                                          interval.interval = int.parse(value);
+                                          log.interval.interval =
+                                              int.parse(value);
                                         });
                                       },
                                     ),
@@ -184,13 +188,13 @@ class LogCreateFormState extends State<LogCreateForm> {
                                   Expanded(
                                     flex: 1,
                                     child: DropdownButton(
-                                      value: interval.unit,
+                                      value: log.interval.unit,
                                       onChanged: (value) {
                                         if (value == null) {
                                           return;
                                         }
                                         setState(() {
-                                          interval.unit = value;
+                                          log.interval.unit = value;
                                         });
                                       },
                                       items: [
@@ -231,14 +235,7 @@ class LogCreateFormState extends State<LogCreateForm> {
                                   //   const SnackBar(
                                   //       content: Text('Processing Data')),
                                   // );
-                                  logs.add(LogItem(
-                                    title,
-                                    description,
-                                    hasNotifications,
-                                    dates,
-                                    startTime,
-                                    interval,
-                                  ));
+                                  logs.add(log);
                                   Navigator.pop(context);
                                 }
                               },
