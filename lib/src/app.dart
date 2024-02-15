@@ -4,7 +4,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:log_it/src/log_feature/Dashboard/log_list_view.dart';
 
 import 'log_feature/CreateForm/log_create_form.dart';
-import 'sample_feature/sample_item_details_view.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
 
@@ -70,8 +69,8 @@ class MyApp extends StatelessWidget {
                 switch (routeSettings.name) {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
-                  case SampleItemDetailsView.routeName:
-                    return const SampleItemDetailsView();
+                  // case LogView.routeName:
+                  // return LogView();
                   case LogsListView.routeName:
                     return const LogsListView();
                   case LogCreateFormPage.routeName:

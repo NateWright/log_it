@@ -10,18 +10,15 @@ class LogModel extends ChangeNotifier {
   /// An unmodifiable view of the items in the cart.
   UnmodifiableListView<LogItem> get items => UnmodifiableListView(_items);
 
-  /// The current total price of all items (assuming all items cost $42).
-  // int get totalPrice => _items.length * 42;
-
-  /// Adds [item] to cart. This and [removeAll] are the only ways to modify the
+  /// Adds new [log] to LogList. This and [removeAll] are the only ways to modify the
   /// cart from the outside.
-  void add(LogItem item) {
-    _items.add(item);
+  void add(LogItem log) {
+    _items.add(log);
     // This call tells the widgets that are listening to this model to rebuild.
     notifyListeners();
   }
 
-  /// Removes all items from the cart.
+  /// Removes all logs from the LogList.
   void removeAll() {
     _items.clear();
     // This call tells the widgets that are listening to this model to rebuild.
