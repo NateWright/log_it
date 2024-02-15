@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:log_it/src/log_create/log_create_form.dart';
-import 'package:log_it/src/log_provider/log_provider.dart';
-import 'package:log_it/src/logs_list/log_list_item.dart';
+import 'package:log_it/src/log_feature/CreateForm/log_create_form.dart';
+import 'package:log_it/src/log_feature/log_provider.dart';
 import 'package:provider/provider.dart';
 
-import '../settings/settings_view.dart';
+import '../../settings/settings_view.dart';
+import './log_list_item.dart';
 
 /// Displays a list of SampleItems.
 class LogsListView extends StatelessWidget {

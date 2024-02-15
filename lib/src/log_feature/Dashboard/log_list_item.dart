@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:log_it/src/log_provider/log.dart';
+import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/sample_feature/sample_item_details_view.dart';
 
 class LogListItem extends StatelessWidget {

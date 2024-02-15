@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' as intl;
-import 'package:log_it/src/log_provider/log_provider.dart';
-import 'package:log_it/src/log_provider/log.dart';
+import 'package:log_it/src/log_feature/log_provider.dart';
+import 'package:log_it/src/log_feature/log.dart';
 import 'package:provider/provider.dart';
 
 class LogCreateFormPage extends StatelessWidget {

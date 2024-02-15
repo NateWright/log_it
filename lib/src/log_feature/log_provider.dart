@@ -1,7 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:log_it/src/log_provider/log.dart';
+import 'package:log_it/src/log_feature/log.dart';
 
 class LogModel extends ChangeNotifier {
   /// Internal, private state of the cart.
