@@ -14,10 +14,17 @@ class LogCreateFormPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Log'),
+        elevation: 4,
+        shadowColor: theme.shadowColor,
+        title: Text(
+          'Create Log',
+          style: theme.textTheme.headlineLarge,
+        ),
         centerTitle: true,
+        // actions: [],
       ),
       body: const LogCreateForm(),
     );
@@ -59,6 +66,7 @@ class LogCreateFormState extends State<LogCreateForm> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     // Build a Form widget using the _formKey created above.
     return Form(
       key: _formKey,
@@ -84,7 +92,7 @@ class LogCreateFormState extends State<LogCreateForm> {
                         // The validator receives the text that the user has entered.
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter some text';
+                            return 'Please enter a title';
                           }
                           return null;
                         },
@@ -112,8 +120,80 @@ class LogCreateFormState extends State<LogCreateForm> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
+                          Text(
+                            'Log type:',
+                            style: theme.textTheme.bodyLarge,
+                          ),
+                          DropdownButton(
+                            value: log.dataType,
+                            onChanged: (value) {
+                              if (value == null) {
+                                return;
+                              }
+                              setState(() {
+                                log.dataType = value;
+                              });
+                            },
+                            items: [
+                              for (var item in DataType.values)
+                                DropdownMenuItem(
+                                  value: item,
+                                  child: Text(item.name.toUpperCase()),
+                                )
+                            ],
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: Text(
+                              'Log unit:',
+                              style: theme.textTheme.bodyLarge,
+                            ),
+                          ),
+                          const Spacer(
+                            flex: 1,
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: TextFormField(
+                              decoration: const InputDecoration(
+                                // border: UnderlineInputBorder(),
+                                filled: true,
+                                labelText: 'Unit',
+                                hintText: 'kg',
+                              ),
+                              enabled: log.dataType == DataType.number,
+                              // The validator receives the text that the user has entered.
+                              validator: (value) {
+                                if (log.dataType == DataType.picture) {
+                                  return null;
+                                }
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter a unit';
+                                }
+                                return null;
+                              },
+                              onChanged: (value) {
+                                setState(() {
+                                  log.unit = value;
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
                           Text('Enable Notifications',
-                              style: Theme.of(context).textTheme.bodyLarge),
+                              style: theme.textTheme.bodyLarge),
                           Switch(
                             value: log.hasNotifications,
                             onChanged: (enabled) {
@@ -149,7 +229,7 @@ class LogCreateFormState extends State<LogCreateForm> {
                                 name: 'Start Time',
                               ),
                               Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 mainAxisSize: MainAxisSize.min,
