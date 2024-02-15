@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' as intl;
-import 'package:log_it/src/components/dropdown.dart';
-import 'package:log_it/src/components/pair.dart';
 import 'package:log_it/src/log_provider/log_provider.dart';
 import 'package:log_it/src/log_provider/log.dart';
 import 'package:provider/provider.dart';
