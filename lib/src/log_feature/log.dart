@@ -9,9 +9,14 @@ class TimeInterval {
 
   int interval;
   TimeIntervalUnits unit;
+
+  @override
+  String toString() {
+    return 'TimeInterval(interval: $interval, unit: ${unit.name})';
+  }
 }
 
-class LogItem {
+class Log {
   String title;
   String description;
   DataType dataType;
@@ -20,7 +25,8 @@ class LogItem {
   DateTimeRange dateRange;
   TimeOfDay startTime;
   TimeInterval interval;
-  LogItem({
+
+  Log({
     required this.title,
     required this.description,
     required this.dataType,
@@ -30,4 +36,44 @@ class LogItem {
     required this.startTime,
     required this.interval,
   });
+
+  Log.fromMap(Map<String, Object?> log)
+      : title = log['title'] as String,
+        description = log['description'] as String,
+        dataType = DataType.values[log['dataType'] as int],
+        unit = log['unit'] as String,
+        hasNotifications = log['hasNotifications'] as int == 1,
+        dateRange = DateTimeRange(
+          start: DateTime.parse(log['dateRangeBegin'] as String),
+          end: DateTime.parse(log['dateRangeEnd'] as String),
+        ),
+        startTime = TimeOfDay(
+          hour: log['startTimeHour'] as int,
+          minute: log['startTimeMinute'] as int,
+        ),
+        interval = TimeInterval(
+          log['intervalInterval'] as int,
+          TimeIntervalUnits.values[log['intervalUnit'] as int],
+        );
+
+  Map<String, Object?> toMap() {
+    return {
+      'title': title,
+      'description': description,
+      'dataType': dataType.index,
+      'unit': unit,
+      'hasNotifications': hasNotifications ? 1 : 0,
+      'dateRangeBegin': dateRange.start.toString(),
+      'dateRangeEnd': dateRange.end.toString(),
+      'startTimeHour': startTime.hour,
+      'startTimeMinute': startTime.minute,
+      'intervalInterval': interval.interval,
+      'intervalUnit': interval.unit.index
+    };
+  }
+
+  @override
+  String toString() {
+    return 'Log(title: $title, description: $description, dataType: ${dataType.name}, unit: $unit, hasNotifications: $hasNotifications, dateRange: $dateRange, startTime: $startTime, interval: $interval';
+  }
 }

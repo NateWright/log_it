@@ -5,7 +5,7 @@ import 'package:log_it/src/log_feature/log.dart';
 class LogView extends StatelessWidget {
   const LogView({super.key, required this.log});
 
-  final LogItem log;
+  final Log log;
 
   static const routeName = '/log_view';
 

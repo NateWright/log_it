@@ -5,7 +5,7 @@ import 'package:log_it/src/log_feature/log.dart';
 class LogListItem extends StatelessWidget {
   const LogListItem(this.log, {super.key});
 
-  final LogItem log;
+  final Log log;
 
   @override
   Widget build(BuildContext context) {

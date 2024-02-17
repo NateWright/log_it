@@ -53,7 +53,7 @@ class LogCreateFormState extends State<LogCreateForm> {
   // not a GlobalKey<MyCustomFormState>.
   final _formKey = GlobalKey<FormState>();
 
-  LogItem log = LogItem(
+  Log log = Log(
     title: '',
     description: '',
     dataType: DataType.number,
