@@ -30,12 +30,14 @@ class LogModel extends ChangeNotifier {
     return null;
   }
 
-  bool hasKey(String title) {
+  bool hasTitle(String title) {
     if (_items.any((element) => element.title == title)) {
       return true;
     }
     return false;
   }
 
-  void addDataNumeric(Log log, double value) {}
+  void addDataNumeric(Log log, double value) {
+    dbService.insertLogValueNumeric(log, DateTime.now(), value);
+  }
 }

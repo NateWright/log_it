@@ -95,7 +95,7 @@ class LogCreateFormState extends State<LogCreateForm> {
                             return 'Please enter a title';
                           }
                           if (Provider.of<LogModel>(context, listen: false)
-                              .hasKey(value)) {
+                              .hasTitle(value)) {
                             return 'Error: Title must be unique';
                           }
                           return null;

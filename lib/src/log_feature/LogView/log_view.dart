@@ -113,22 +113,19 @@ class _AddDataFormState extends State<AddDataForm> {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Consumer<LogModel>(
-                  builder: (context, logs, child) {
-                    return ElevatedButton(
-                      onPressed: () {
-                        // Validate returns true if the form is valid, or false otherwise.
-                        if (_formKey.currentState!.validate()) {
-                          try {
-                            double val = double.parse(input);
-                            logs.addDataNumeric(widget.log, val);
-                            Navigator.pop(context);
-                          } catch (e) {}
-                        }
-                      },
-                      child: const Text('Add'),
-                    );
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Validate returns true if the form is valid, or false otherwise.
+                    if (_formKey.currentState!.validate()) {
+                      try {
+                        double val = double.parse(input);
+                        Provider.of<LogModel>(context, listen: false)
+                            .addDataNumeric(widget.log, val);
+                        Navigator.pop(context);
+                      } catch (e) {}
+                    }
                   },
+                  child: const Text('Add'),
                 ),
               ),
             ],
