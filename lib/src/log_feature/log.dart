@@ -17,6 +17,7 @@ class TimeInterval {
 }
 
 class Log {
+  int id;
   String title;
   String description;
   DataType dataType;
@@ -27,6 +28,7 @@ class Log {
   TimeInterval interval;
 
   Log({
+    this.id = -1,
     required this.title,
     required this.description,
     required this.dataType,
@@ -38,7 +40,8 @@ class Log {
   });
 
   Log.fromMap(Map<String, Object?> log)
-      : title = log['title'] as String,
+      : id = log['id'] as int,
+        title = log['title'] as String,
         description = log['description'] as String,
         dataType = DataType.values[log['dataType'] as int],
         unit = log['unit'] as String,
@@ -58,6 +61,7 @@ class Log {
 
   Map<String, Object?> toMap() {
     return {
+      'id': id == -1 ? null : id,
       'title': title,
       'description': description,
       'dataType': dataType.index,

@@ -10,7 +10,7 @@ class LogModel extends ChangeNotifier {
   final DbService dbService = DbService();
 
   LogModel() {
-    final Future<List<Log>> future = dbService.getItems();
+    final Future<List<Log>> future = dbService.getLogs();
 
     future.then((value) {
       _items = value;
@@ -21,19 +21,21 @@ class LogModel extends ChangeNotifier {
   /// An unmodifiable view of the items in the cart.
   UnmodifiableListView<Log> get items => UnmodifiableListView(_items);
 
-  /// Adds new [log] to LogList. This and [removeAll] are the only ways to modify the
-  /// cart from the outside.
-  void add(Log log) {
-    _items.add(log);
+  /// Adds new [log] to Database. Returns null on success and
+  String? add(Log log) {
     dbService.insertLog(log);
+    _items.add(log);
     // This call tells the widgets that are listening to this model to rebuild.
     notifyListeners();
+    return null;
   }
 
-  /// Removes all logs from the LogList.
-  // void removeAll() {
-  //   _items.clear();
-  //   // This call tells the widgets that are listening to this model to rebuild.
-  //   notifyListeners();
-  // }
+  bool hasKey(String title) {
+    if (_items.any((element) => element.title == title)) {
+      return true;
+    }
+    return false;
+  }
+
+  void addDataNumeric(Log log, double value) {}
 }

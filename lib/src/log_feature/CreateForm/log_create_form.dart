@@ -94,6 +94,10 @@ class LogCreateFormState extends State<LogCreateForm> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter a title';
                           }
+                          if (Provider.of<LogModel>(context, listen: false)
+                              .hasKey(value)) {
+                            return 'Error: Title must be unique';
+                          }
                           return null;
                         },
                         onChanged: (value) {
@@ -315,8 +319,16 @@ class LogCreateFormState extends State<LogCreateForm> {
                                   //   const SnackBar(
                                   //       content: Text('Processing Data')),
                                   // );
-                                  logs.add(log);
-                                  Navigator.pop(context);
+                                  String? ret = logs.add(log);
+                                  if (ret == null) {
+                                    Navigator.pop(context);
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(ret),
+                                      ),
+                                    );
+                                  }
                                 }
                               },
                               child: const Text('Submit'),
