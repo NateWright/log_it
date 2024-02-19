@@ -1,4 +1,5 @@
 import 'package:log_it/src/log_feature/log.dart';
+import 'package:log_it/src/log_feature/numeric.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -35,7 +36,7 @@ class DbService {
     // Initialize table to store data:value pairs
     if (log.dataType == DataType.number) {
       db.execute(
-          'CREATE TABLE values${log.id}(date TEXT PRIMARY KEY, data REAL);');
+          'CREATE TABLE ${log.dbName}(date TEXT PRIMARY KEY, data REAL);');
     }
   }
 
@@ -48,25 +49,23 @@ class DbService {
     ];
   }
 
-  Future<void> insertLogValueNumeric(
-      Log log, DateTime date, double data) async {
+  Future<void> insertLogValueNumeric(Log log, Numeric numeric) async {
     final db = await database;
 
     await db.insert(
-      'values${log.id}',
-      {
-        'date': date.toString(),
-        'data': data,
-      },
+      log.dbName,
+      numeric.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
-  Future<List<Map<String, Object?>>> getLogValuesNumeric(Log log) async {
+  Future<List<Numeric>> getLogValuesNumeric(Log log) async {
     final db = await database;
 
-    List<Map<String, Object?>> values = await db.query('values${log.id}');
+    List<Map<String, Object?>> values = await db.query(log.dbName);
 
-    return values;
+    return [
+      for (final val in values) Numeric.fromMap(val),
+    ];
   }
 }

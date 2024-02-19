@@ -59,6 +59,10 @@ class Log {
           TimeIntervalUnits.values[log['intervalUnit'] as int],
         );
 
+  String get dbName => dataType == DataType.number
+      ? 'values$id'
+      : throw UnimplementedError('dbName get not implemented for Pictures');
+
   Map<String, Object?> toMap() {
     return {
       'id': id == -1 ? null : id,

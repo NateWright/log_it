@@ -69,8 +69,6 @@ class MyApp extends StatelessWidget {
                 switch (routeSettings.name) {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
-                  // case LogView.routeName:
-                  // return LogView();
                   case LogsListView.routeName:
                     return const LogsListView();
                   case LogCreateFormPage.routeName:

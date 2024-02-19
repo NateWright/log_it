@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:log_it/src/log_feature/LogView/log_data_view.dart';
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/log_provider.dart';
 import 'package:provider/provider.dart';
@@ -26,14 +27,24 @@ class LogView extends StatelessWidget {
         centerTitle: true,
         // actions: [],
       ),
-      body: const Row(
+      body: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text('IMPLEMENT ME: Show Graph here'),
-              Text('IMPLEMENT ME: Button for viewing raw data')
+              const Text('IMPLEMENT ME: Show Graph here'),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LogDataView(log: log),
+                    ),
+                  );
+                },
+                child: const Text('View Data'),
+              ),
             ],
           ),
         ],

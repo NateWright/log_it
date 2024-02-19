@@ -319,16 +319,8 @@ class LogCreateFormState extends State<LogCreateForm> {
                                   //   const SnackBar(
                                   //       content: Text('Processing Data')),
                                   // );
-                                  String? ret = logs.add(log);
-                                  if (ret == null) {
-                                    Navigator.pop(context);
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(ret),
-                                      ),
-                                    );
-                                  }
+                                  logs.add(log);
+                                  Navigator.pop(context);
                                 }
                               },
                               child: const Text('Submit'),
