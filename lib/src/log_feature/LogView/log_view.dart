@@ -101,26 +101,30 @@ class _AddDataFormState extends State<AddDataForm> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Data',
-                  hintText: '1.0',
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+                child: TextFormField(
+                  decoration: const InputDecoration(
+                    filled: true,
+                    labelText: 'Data',
+                    hintText: '1.0',
+                  ),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'(^\d*\.?\d*)')),
+                  ],
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a value';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    setState(() {
+                      input = value;
+                    });
+                  },
                 ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'(^\d*\.?\d*)')),
-                ],
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a value';
-                  }
-                  return null;
-                },
-                onChanged: (value) {
-                  setState(() {
-                    input = value;
-                  });
-                },
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
