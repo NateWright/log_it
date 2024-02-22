@@ -4,6 +4,7 @@ import 'package:log_it/src/log_feature/LogView/log_data_view.dart';
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/log_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 /// Displays detailed information about a SampleItem.
 class LogView extends StatelessWidget {
@@ -33,7 +34,27 @@ class LogView extends StatelessWidget {
           Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text('IMPLEMENT ME: Show Graph here'),
+              SizedBox(
+                width: 400,
+                height: 300,
+                child: LineChart(
+                  LineChartData(
+                    lineBarsData: [
+                      LineChartBarData(
+                        isCurved: true,
+                        barWidth: 3,
+                        spots: [
+                          FlSpot(0, 5),
+                          FlSpot(1, 10),
+                          FlSpot(2, 4),
+                          FlSpot(3, 12),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(
