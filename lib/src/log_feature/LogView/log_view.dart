@@ -41,9 +41,10 @@ class LogView extends StatelessWidget {
             menuChildren: [
               MenuItemButton(
                 style: MenuItemButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    iconColor: Colors.white),
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  iconColor: Colors.white,
+                ),
                 leadingIcon: const Icon(Icons.delete),
                 onPressed: () {
                   showDialog(
