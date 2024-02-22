@@ -6,6 +6,8 @@ import 'package:log_it/src/log_feature/log_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 
+enum SettingsOptions { delete }
+
 /// Displays detailed information about a SampleItem.
 class LogView extends StatelessWidget {
   const LogView({super.key, required this.log});
@@ -26,7 +28,60 @@ class LogView extends StatelessWidget {
           style: theme.textTheme.headlineLarge,
         ),
         centerTitle: true,
-        // actions: [],
+        actions: [
+          MenuAnchor(
+            builder: (context, controller, child) => IconButton(
+                onPressed: () {
+                  if (controller.isOpen) {
+                    controller.close();
+                  } else {
+                    controller.open();
+                  }
+                },
+                icon: const Icon(Icons.more_vert)),
+            menuChildren: [
+              MenuItemButton(
+                style: MenuItemButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  iconColor: Colors.white,
+                ),
+                leadingIcon: const Icon(Icons.delete),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text(
+                          'Are you sure you want to delete ${log.title}?',
+                        ),
+                        content: const Text('Deleting a log is irreversible.'),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('NO'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Provider.of<LogModel>(context, listen: false)
+                                  .delete(log);
+                              Navigator.popUntil(
+                                context,
+                                ModalRoute.withName("/"),
+                              );
+                            },
+                            child: const Text('YES'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                child: const Text('Delete'),
+              ),
+            ],
+          ),
+        ],
       ),
       body: Row(
         mainAxisAlignment: MainAxisAlignment.center,

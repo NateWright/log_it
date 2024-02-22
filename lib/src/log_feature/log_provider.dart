@@ -30,6 +30,12 @@ class LogModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void delete(Log log) {
+    dbService.deleteLog(log);
+    _items.remove(log);
+    notifyListeners();
+  }
+
   bool hasTitle(String title) {
     if (_items.any((element) => element.title == title)) {
       return true;

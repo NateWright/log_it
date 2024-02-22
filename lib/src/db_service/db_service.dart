@@ -40,6 +40,19 @@ class DbService {
     }
   }
 
+  Future<void> deleteLog(Log log) async {
+    final db = await database;
+
+    await db.delete(
+      'logs',
+      where: 'id = ?',
+      whereArgs: [log.id],
+    );
+    await db.execute(
+      'DROP TABLE ${log.dbName};',
+    );
+  }
+
   Future<List<Log>> getLogs() async {
     final db = await database;
     final List<Map<String, Object?>> logMaps = await db.query('logs');
