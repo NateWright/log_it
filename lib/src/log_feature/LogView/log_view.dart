@@ -40,45 +40,7 @@ class LogView extends StatelessWidget {
                 },
                 icon: const Icon(Icons.more_vert)),
             menuChildren: [
-              MenuItemButton(
-                style: MenuItemButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                  iconColor: Colors.white,
-                ),
-                leadingIcon: const Icon(Icons.delete),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text(
-                          'Are you sure you want to delete ${log.title}?',
-                        ),
-                        content: const Text('Deleting a log is irreversible.'),
-                        actions: <Widget>[
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text('NO'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Provider.of<LogModel>(context, listen: false)
-                                  .delete(log);
-                              Navigator.popUntil(
-                                context,
-                                ModalRoute.withName("/"),
-                              );
-                            },
-                            child: const Text('YES'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-                child: const Text('Delete'),
-              ),
+              _DeleteWidget(log: log),
             ],
           ),
         ],
@@ -137,6 +99,57 @@ class LogView extends StatelessWidget {
         tooltip: 'Add new log',
         child: const Icon(Icons.add),
       ),
+    );
+  }
+}
+
+class _DeleteWidget extends StatelessWidget {
+  const _DeleteWidget({
+    super.key,
+    required this.log,
+  });
+
+  final Log log;
+
+  @override
+  Widget build(BuildContext context) {
+    return MenuItemButton(
+      style: MenuItemButton.styleFrom(
+        backgroundColor: Colors.red,
+        foregroundColor: Colors.white,
+        iconColor: Colors.white,
+      ),
+      leadingIcon: const Icon(Icons.delete),
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text(
+                'Are you sure you want to delete ${log.title}?',
+              ),
+              content: const Text('Deleting a log is irreversible.'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('NO'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Provider.of<LogModel>(context, listen: false).delete(log);
+                    Navigator.popUntil(
+                      context,
+                      ModalRoute.withName("/"),
+                    );
+                  },
+                  child: const Text('YES'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+      child: const Text('Delete'),
     );
   }
 }
