@@ -31,7 +31,7 @@ class LogDataView extends StatelessWidget {
             future: value.getDataNumeric(log),
             builder: (context, snapshot) {
               if (snapshot.connectionState != ConnectionState.done) {
-                return const Text('waiting for data');
+                return const CircularProgressIndicator();
               }
               // return const Text('has data');
               return ListView.builder(
