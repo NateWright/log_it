@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:log_it/src/components/form_date_picker.dart';
+import 'package:log_it/src/components/form_time_picker.dart';
 import 'package:log_it/src/log_feature/CreateForm/log_create_form.dart';
 import 'package:log_it/src/log_feature/LogView/log_data_view.dart';
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/log_provider.dart';
+import 'package:log_it/src/log_feature/numeric.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -202,7 +205,8 @@ class AddDataForm extends StatefulWidget {
 class _AddDataFormState extends State<AddDataForm> {
   final _formKey = GlobalKey<FormState>();
 
-  var input;
+  String input = '';
+  Numeric numeric = Numeric(date: DateTime.now(), data: 0);
 
   @override
   Widget build(BuildContext context) {
@@ -223,30 +227,64 @@ class _AddDataFormState extends State<AddDataForm> {
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-                child: TextFormField(
-                  decoration: const InputDecoration(
-                    filled: true,
-                    labelText: 'Data',
-                    hintText: '1.0',
+              Card(
+                elevation: 1,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+                        child: TextFormField(
+                          decoration: const InputDecoration(
+                            filled: true,
+                            labelText: 'Data',
+                            hintText: '1.0',
+                          ),
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'(^\d*\.?\d*)')),
+                          ],
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a value';
+                            }
+                            return null;
+                          },
+                          onChanged: (value) {
+                            setState(() {
+                              input = value;
+                            });
+                          },
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          FormDatePicker(
+                            onChanged: (value) {
+                              numeric.date = value;
+                            },
+                          ),
+                          FormTimePicker(onChanged: (value) {
+                            numeric.date = DateTime(
+                              numeric.date.year,
+                              numeric.date.month,
+                              numeric.date.day,
+                              value.hour,
+                              value.minute,
+                              0,
+                              0,
+                            );
+                          }),
+                        ],
+                      ),
+                    ],
                   ),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'(^\d*\.?\d*)')),
-                  ],
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a value';
-                    }
-                    return null;
-                  },
-                  onChanged: (value) {
-                    setState(() {
-                      input = value;
-                    });
-                  },
                 ),
               ),
               Padding(
@@ -256,9 +294,9 @@ class _AddDataFormState extends State<AddDataForm> {
                     // Validate returns true if the form is valid, or false otherwise.
                     if (_formKey.currentState!.validate()) {
                       try {
-                        double val = double.parse(input);
+                        numeric.data = double.parse(input);
                         Provider.of<LogModel>(context, listen: false)
-                            .addDataNumeric(widget.log, val);
+                            .addDataNumeric(widget.log, numeric);
                         Navigator.pop(context);
                       } catch (e) {}
                     }

@@ -52,10 +52,10 @@ class LogModel extends ChangeNotifier {
     return false;
   }
 
-  void addDataNumeric(Log log, double value) {
+  void addDataNumeric(Log log, Numeric numeric) {
     dbService.insertLogValueNumeric(
       log,
-      Numeric(date: DateTime.now(), data: value),
+      numeric,
     );
     notifyListeners();
   }
