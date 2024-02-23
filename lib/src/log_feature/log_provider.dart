@@ -24,8 +24,13 @@ class LogModel extends ChangeNotifier {
 
   /// Adds new [log] to Database. Returns null on success and
   void add(Log log) {
-    dbService.insertLog(log);
-    _items.add(log);
+    if (log.id == -1) {
+      dbService.insertLog(log);
+      _items.add(log);
+    } else {
+      dbService.updateLog(log);
+    }
+
     // This call tells the widgets that are listening to this model to rebuild.
     notifyListeners();
   }
@@ -35,6 +40,10 @@ class LogModel extends ChangeNotifier {
     _items.remove(log);
     notifyListeners();
   }
+
+  // Log getLog(int id) {
+  //   return _items.singleWhere((element) => element.id == id);
+  // }
 
   bool hasTitle(String title) {
     if (_items.any((element) => element.title == title)) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:log_it/src/log_feature/CreateForm/log_create_form.dart';
 import 'package:log_it/src/log_feature/LogView/log_data_view.dart';
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/log_provider.dart';
@@ -10,100 +11,121 @@ enum SettingsOptions { delete }
 
 /// Displays detailed information about a SampleItem.
 class LogView extends StatelessWidget {
-  const LogView({super.key, required this.log});
-
-  final Log log;
+  const LogView({super.key});
 
   static const routeName = '/log_view';
 
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args == null || args is! Map) {
+      Navigator.pop(context);
+      return const Text('Error');
+    }
+    final int index = (args['index'] ?? '-1') as int;
+    if (index == -1) {
+      Navigator.pop(context);
+      return const Text('Error');
+    }
     final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 4,
-        shadowColor: theme.shadowColor,
-        title: Text(
-          log.title,
-          style: theme.textTheme.headlineLarge,
-        ),
-        centerTitle: true,
-        actions: [
-          MenuAnchor(
-            builder: (context, controller, child) => IconButton(
-              onPressed: () {
-                if (controller.isOpen) {
-                  controller.close();
-                } else {
-                  controller.open();
-                }
-              },
-              icon: const Icon(Icons.more_vert),
+    return Consumer<LogModel>(
+      builder: (context, value, child) {
+        final Log log = value.items[index];
+        return Scaffold(
+          appBar: AppBar(
+            elevation: 4,
+            shadowColor: theme.shadowColor,
+            title: Text(
+              log.title,
+              style: theme.textTheme.headlineLarge,
             ),
-            menuChildren: [
-              MenuItemButton(
-                onPressed: () {},
-                leadingIcon: const Icon(Icons.settings),
-                child: const Text('EDIT'),
+            centerTitle: true,
+            actions: [
+              MenuAnchor(
+                builder: (context, controller, child) => IconButton(
+                  onPressed: () {
+                    if (controller.isOpen) {
+                      controller.close();
+                    } else {
+                      controller.open();
+                    }
+                  },
+                  icon: const Icon(Icons.more_vert),
+                ),
+                menuChildren: [
+                  MenuItemButton(
+                    onPressed: () {
+                      Navigator.pushNamed(
+                        context,
+                        LogCreateFormPage.routeName,
+                        arguments: {
+                          'index': index,
+                        },
+                      );
+                    },
+                    leadingIcon: const Icon(Icons.settings),
+                    child: const Text('EDIT'),
+                  ),
+                  _DeleteWidget(log: log),
+                ],
               ),
-              _DeleteWidget(log: log),
             ],
           ),
-        ],
-      ),
-      body: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+          body: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(
-                width: 400,
-                height: 300,
-                child: LineChart(
-                  LineChartData(
-                    lineBarsData: [
-                      LineChartBarData(
-                        isCurved: true,
-                        barWidth: 3,
-                        spots: [
-                          FlSpot(0, 5),
-                          FlSpot(1, 10),
-                          FlSpot(2, 4),
-                          FlSpot(3, 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 400,
+                    height: 300,
+                    child: LineChart(
+                      LineChartData(
+                        lineBarsData: [
+                          LineChartBarData(
+                            isCurved: true,
+                            barWidth: 3,
+                            spots: [
+                              FlSpot(0, 5),
+                              FlSpot(1, 10),
+                              FlSpot(2, 4),
+                              FlSpot(3, 12),
+                            ],
+                          ),
                         ],
                       ),
-                    ],
-                  ),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LogDataView(log: log),
                     ),
-                  );
-                },
-                child: const Text('View Data'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LogDataView(log: log),
+                        ),
+                      );
+                    },
+                    child: const Text('View Data'),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            // Create the SelectionScreen in the next step.
-            MaterialPageRoute(builder: (context) => AddDataForm(log: log)),
-          );
-        },
-        tooltip: 'Add new log',
-        child: const Icon(Icons.add),
-      ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                // Create the SelectionScreen in the next step.
+                MaterialPageRoute(builder: (context) => AddDataForm(log: log)),
+              );
+            },
+            tooltip: 'Add new log',
+            child: const Icon(Icons.add),
+          ),
+        );
+      },
     );
   }
 }

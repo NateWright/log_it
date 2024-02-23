@@ -40,6 +40,12 @@ class DbService {
     }
   }
 
+  Future<int> updateLog(Log log) async {
+    final db = await database;
+    return await db
+        .update('logs', log.toMap(), where: 'id = ?', whereArgs: [log.id]);
+  }
+
   Future<void> deleteLog(Log log) async {
     final db = await database;
 

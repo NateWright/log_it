@@ -66,6 +66,13 @@ class LogCreateFormState extends State<LogCreateForm> {
 
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is Map) {
+      final int index = (args['index'] ?? '-1') as int;
+      setState(() {
+        log = Provider.of<LogModel>(context, listen: false).items[index];
+      });
+    }
     final theme = Theme.of(context);
     // Build a Form widget using the _formKey created above.
     return Form(
@@ -83,6 +90,7 @@ class LogCreateFormState extends State<LogCreateForm> {
                   children: [
                     ...[
                       TextFormField(
+                        initialValue: log.title,
                         decoration: const InputDecoration(
                           // border: UnderlineInputBorder(),
                           filled: true,
@@ -94,10 +102,6 @@ class LogCreateFormState extends State<LogCreateForm> {
                           if (value == null || value.isEmpty) {
                             return 'Please enter a title';
                           }
-                          if (Provider.of<LogModel>(context, listen: false)
-                              .hasTitle(value)) {
-                            return 'Error: Title must be unique';
-                          }
                           return null;
                         },
                         onChanged: (value) {
@@ -107,6 +111,7 @@ class LogCreateFormState extends State<LogCreateForm> {
                         },
                       ),
                       TextFormField(
+                        initialValue: log.description,
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           filled: true,
@@ -166,6 +171,7 @@ class LogCreateFormState extends State<LogCreateForm> {
                           Expanded(
                             flex: 1,
                             child: TextFormField(
+                              initialValue: log.unit,
                               decoration: const InputDecoration(
                                 // border: UnderlineInputBorder(),
                                 filled: true,

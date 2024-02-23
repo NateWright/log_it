@@ -60,7 +60,7 @@ class LogsListView extends StatelessWidget {
             itemBuilder: (BuildContext context, int index) {
               final item = value.items[index];
 
-              return LogListItem(item);
+              return LogListItem(index: index, log: item);
             },
             separatorBuilder: (context, index) {
               final theme = Theme.of(context);
