@@ -23,7 +23,12 @@ class LogDataView extends StatelessWidget {
           style: theme.textTheme.headlineLarge,
         ),
         centerTitle: true,
-        // actions: [],
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.edit),
+          )
+        ],
       ),
       body: Consumer<LogModel>(
         builder: (context, value, child) {
@@ -37,7 +42,11 @@ class LogDataView extends StatelessWidget {
               return ListView.builder(
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
-                  return LogDataItem(snapshot.data![index]);
+                  return LogDataItem(
+                    numeric: snapshot.data![index],
+                    value: false,
+                    onChanged: null,
+                  );
                 },
               );
             },
