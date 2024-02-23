@@ -78,25 +78,32 @@ class LogView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(
-                    width: 400,
-                    height: 300,
-                    child: LineChart(
-                      LineChartData(
-                        lineBarsData: [
-                          LineChartBarData(
-                            isCurved: true,
-                            barWidth: 3,
-                            spots: [
-                              FlSpot(0, 5),
-                              FlSpot(1, 10),
-                              FlSpot(2, 4),
-                              FlSpot(3, 12),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                      width: 400,
+                      height: 300,
+                      child: FutureBuilder(
+                        future: value.getDataNumeric(log),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState !=
+                              ConnectionState.done) {
+                            return const CircularProgressIndicator();
+                          }
+                          return LineChart(
+                            LineChartData(
+                              lineBarsData: [
+                                LineChartBarData(
+                                  isCurved: true,
+                                  barWidth: 3,
+                                  spots: [
+                                    for (final (index, n)
+                                        in snapshot.data!.indexed)
+                                      FlSpot(index.toDouble(), n.data),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      )),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.push(
