@@ -41,6 +41,11 @@ class LogView extends StatelessWidget {
               icon: const Icon(Icons.more_vert),
             ),
             menuChildren: [
+              MenuItemButton(
+                onPressed: () {},
+                leadingIcon: const Icon(Icons.settings),
+                child: const Text('EDIT'),
+              ),
               _DeleteWidget(log: log),
             ],
           ),
