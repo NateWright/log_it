@@ -31,14 +31,15 @@ class LogView extends StatelessWidget {
         actions: [
           MenuAnchor(
             builder: (context, controller, child) => IconButton(
-                onPressed: () {
-                  if (controller.isOpen) {
-                    controller.close();
-                  } else {
-                    controller.open();
-                  }
-                },
-                icon: const Icon(Icons.more_vert)),
+              onPressed: () {
+                if (controller.isOpen) {
+                  controller.close();
+                } else {
+                  controller.open();
+                }
+              },
+              icon: const Icon(Icons.more_vert),
+            ),
             menuChildren: [
               _DeleteWidget(log: log),
             ],
@@ -71,7 +72,6 @@ class LogView extends StatelessWidget {
                   ),
                 ),
               ),
-              
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(
