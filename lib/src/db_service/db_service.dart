@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/numeric.dart';
 import 'package:sqflite/sqflite.dart';
@@ -76,6 +78,18 @@ class DbService {
       numeric.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+  }
+
+  Future<void> deleteLogValuesNumeric(Log log, List<Numeric> numeric) async {
+    final db = await database;
+
+    for (final val in numeric) {
+      await db.delete(
+        log.dbName,
+        where: 'date = ?',
+        whereArgs: [val.date.toString()],
+      );
+    }
   }
 
   Future<List<Numeric>> getLogValuesNumeric(Log log) async {

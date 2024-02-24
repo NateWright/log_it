@@ -53,11 +53,21 @@ class LogModel extends ChangeNotifier {
   }
 
   void addDataNumeric(Log log, Numeric numeric) {
-    dbService.insertLogValueNumeric(
+    final f = dbService.insertLogValueNumeric(
       log,
       numeric,
     );
+    f.then(
+      (value) => notifyListeners(),
+    );
     notifyListeners();
+  }
+
+  void deleteDataNumeric(Log log, List<Numeric> vals) {
+    final f = dbService.deleteLogValuesNumeric(log, vals);
+    f.then(
+      (value) => notifyListeners(),
+    );
   }
 
   Future<List<Numeric>> getDataNumeric(Log log) {
