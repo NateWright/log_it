@@ -2,9 +2,10 @@ import "package:flutter/material.dart";
 
 class FormTimePicker extends StatefulWidget {
   final ValueChanged<TimeOfDay> onChanged;
-
+  final TimeOfDay initialTime;
   const FormTimePicker({
     super.key,
+    required this.initialTime,
     required this.onChanged,
   });
 
@@ -16,14 +17,12 @@ class _FormTimePickerState extends State<FormTimePicker> {
   String buttonText = 'Select Time';
   @override
   Widget build(BuildContext context) {
-    TimeOfDay initialTime = TimeOfDay.now();
-    widget.onChanged(initialTime);
     return FilledButton(
       child: Text(buttonText),
       onPressed: () async {
         var newTime = await showTimePicker(
           context: context,
-          initialTime: initialTime,
+          initialTime: widget.initialTime,
         );
 
         // Don't change the date if the date picker returns null.

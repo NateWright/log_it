@@ -3,9 +3,11 @@ import 'package:intl/intl.dart' as intl;
 
 class FormDatePicker extends StatefulWidget {
   final ValueChanged<DateTime> onChanged;
+  final DateTime initialDate;
 
   const FormDatePicker({
     super.key,
+    required this.initialDate,
     required this.onChanged,
   });
 
@@ -17,13 +19,11 @@ class _FormDatePickerState extends State<FormDatePicker> {
   String buttonText = 'Select Date';
   @override
   Widget build(BuildContext context) {
-    DateTime initialDate = DateTime.now();
-    widget.onChanged(initialDate);
     return FilledButton(
       onPressed: () async {
         var newDate = await showDatePicker(
           context: context,
-          initialDate: initialDate,
+          initialDate: widget.initialDate,
           firstDate: DateTime(1900),
           lastDate: DateTime(2100),
         );

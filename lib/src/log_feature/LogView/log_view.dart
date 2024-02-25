@@ -275,21 +275,32 @@ class _AddDataFormState extends State<AddDataForm> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           FormDatePicker(
+                            initialDate: numeric.date,
                             onChanged: (value) {
-                              numeric.date = value;
+                              numeric.date = DateTime(
+                                value.year,
+                                value.month,
+                                value.day,
+                                numeric.date.hour,
+                                numeric.date.minute,
+                                0,
+                                0,
+                              );
                             },
                           ),
-                          FormTimePicker(onChanged: (value) {
-                            numeric.date = DateTime(
-                              numeric.date.year,
-                              numeric.date.month,
-                              numeric.date.day,
-                              value.hour,
-                              value.minute,
-                              0,
-                              0,
-                            );
-                          }),
+                          FormTimePicker(
+                              initialTime: TimeOfDay.fromDateTime(numeric.date),
+                              onChanged: (value) {
+                                numeric.date = DateTime(
+                                  numeric.date.year,
+                                  numeric.date.month,
+                                  numeric.date.day,
+                                  value.hour,
+                                  value.minute,
+                                  0,
+                                  0,
+                                );
+                              }),
                         ],
                       ),
                     ],
