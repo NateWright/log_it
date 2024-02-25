@@ -29,10 +29,9 @@ class LogProvider extends ChangeNotifier {
     return ret.then((_) => _updateLogs());
   }
 
-  void delete(Log log) {
-    dbService.deleteLog(log);
-    _items.remove(log);
-    notifyListeners();
+  Future<void> delete(Log log) {
+    Future<void> ret = dbService.deleteLog(log);
+    return ret.then((_) => _updateLogs());
   }
 
   // Log getLog(int id) {

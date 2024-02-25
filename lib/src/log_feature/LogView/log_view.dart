@@ -33,6 +33,9 @@ class LogView extends StatelessWidget {
     final theme = Theme.of(context);
     return Consumer<LogProvider>(
       builder: (context, value, child) {
+        if (index >= value.items.length) {
+          return const Center(child: CircularProgressIndicator());
+        }
         final Log log = value.items[index];
         return Scaffold(
           appBar: AppBar(
@@ -69,7 +72,10 @@ class LogView extends StatelessWidget {
                     leadingIcon: const Icon(Icons.settings),
                     child: const Text('EDIT'),
                   ),
-                  _DeleteWidget(log: log),
+                  _DeleteWidget(
+                    log: log,
+                    context: context,
+                  ),
                 ],
               ),
             ],
@@ -144,9 +150,11 @@ class _DeleteWidget extends StatelessWidget {
   const _DeleteWidget({
     super.key,
     required this.log,
+    required this.context,
   });
 
   final Log log;
+  final BuildContext context;
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +167,7 @@ class _DeleteWidget extends StatelessWidget {
       leadingIcon: const Icon(Icons.delete),
       onPressed: () {
         showDialog(
-          context: context,
+          context: this.context,
           builder: (context) {
             return AlertDialog(
               title: Text(
