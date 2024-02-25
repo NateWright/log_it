@@ -11,28 +11,22 @@ class LogProvider extends ChangeNotifier {
   DbService dbService;
 
   LogProvider(this.dbService) {
-    final Future<List<Log>> future = dbService.getLogs();
-
-    future.then((value) {
-      _items = value;
-      notifyListeners();
-    });
+    _updateLogs();
   }
 
   /// An unmodifiable view of the items in the cart.
   UnmodifiableListView<Log> get items => UnmodifiableListView(_items);
 
   /// Adds new [log] to Database. Returns null on success and
-  void add(Log log) {
+  Future<void> add(Log log) {
+    Future<void> ret;
     if (log.id == -1) {
-      dbService.insertLog(log);
-      _items.add(log);
+      ret = dbService.insertLog(log);
     } else {
-      dbService.updateLog(log);
+      ret = dbService.updateLog(log);
     }
 
-    // This call tells the widgets that are listening to this model to rebuild.
-    notifyListeners();
+    return ret.then((_) => _updateLogs());
   }
 
   void delete(Log log) {
@@ -72,5 +66,16 @@ class LogProvider extends ChangeNotifier {
 
   Future<List<Numeric>> getDataNumeric(Log log) {
     return dbService.getLogValuesNumeric(log);
+  }
+
+  void _updateLogs() {
+    final Future<List<Log>> future = dbService.getLogs();
+
+    future.then((value) => _setLogs(value));
+  }
+
+  void _setLogs(List<Log> values) {
+    _items = values;
+    notifyListeners();
   }
 }
