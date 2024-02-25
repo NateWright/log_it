@@ -8,9 +8,9 @@ import 'package:log_it/src/log_feature/numeric.dart';
 class LogModel extends ChangeNotifier {
   /// Internal, private state of the cart.
   List<Log> _items = [];
-  final DbService dbService = DbService();
+  DbService dbService;
 
-  LogModel() {
+  LogModel(this.dbService) {
     final Future<List<Log>> future = dbService.getLogs();
 
     future.then((value) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:log_it/src/db_service/db_service.dart';
 import 'package:log_it/src/log_feature/log_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -20,7 +21,7 @@ void main() async {
   // SettingsView.
   runApp(
     ChangeNotifierProvider(
-      create: (context) => LogModel(),
+      create: (context) => LogModel(DbService()),
       child: MyApp(settingsController: settingsController),
     ),
   );
