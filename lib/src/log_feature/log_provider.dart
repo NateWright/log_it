@@ -5,12 +5,12 @@ import 'package:log_it/src/db_service/db_service.dart';
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/numeric.dart';
 
-class LogModel extends ChangeNotifier {
+class LogProvider extends ChangeNotifier {
   /// Internal, private state of the cart.
   List<Log> _items = [];
   DbService dbService;
 
-  LogModel(this.dbService) {
+  LogProvider(this.dbService) {
     final Future<List<Log>> future = dbService.getLogs();
 
     future.then((value) {

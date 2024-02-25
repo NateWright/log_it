@@ -31,7 +31,7 @@ class LogView extends StatelessWidget {
       return const Text('Error');
     }
     final theme = Theme.of(context);
-    return Consumer<LogModel>(
+    return Consumer<LogProvider>(
       builder: (context, value, child) {
         final Log log = value.items[index];
         return Scaffold(
@@ -173,7 +173,8 @@ class _DeleteWidget extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () {
-                    Provider.of<LogModel>(context, listen: false).delete(log);
+                    Provider.of<LogProvider>(context, listen: false)
+                        .delete(log);
                     Navigator.popUntil(
                       context,
                       ModalRoute.withName("/"),
@@ -295,7 +296,7 @@ class _AddDataFormState extends State<AddDataForm> {
                     if (_formKey.currentState!.validate()) {
                       try {
                         numeric.data = double.parse(input);
-                        Provider.of<LogModel>(context, listen: false)
+                        Provider.of<LogProvider>(context, listen: false)
                             .addDataNumeric(widget.log, numeric);
                         Navigator.pop(context);
                       } catch (e) {}

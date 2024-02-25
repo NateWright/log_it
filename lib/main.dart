@@ -21,7 +21,7 @@ void main() async {
   // SettingsView.
   runApp(
     ChangeNotifierProvider(
-      create: (context) => LogModel(DbService()),
+      create: (context) => LogProvider(DbService()),
       child: MyApp(settingsController: settingsController),
     ),
   );

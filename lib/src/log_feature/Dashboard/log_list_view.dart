@@ -49,7 +49,7 @@ class LogsListView extends StatelessWidget {
         tooltip: 'Add new log',
         child: const Icon(Icons.add),
       ),
-      body: Consumer<LogModel>(
+      body: Consumer<LogProvider>(
         builder: (context, value, child) {
           return ListView.separated(
             // Providing a restorationId allows the ListView to restore the

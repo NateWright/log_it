@@ -70,7 +70,7 @@ class LogCreateFormState extends State<LogCreateForm> {
     if (args is Map) {
       final int index = (args['index'] ?? '-1') as int;
       setState(() {
-        log = Provider.of<LogModel>(context, listen: false).items[index];
+        log = Provider.of<LogProvider>(context, listen: false).items[index];
       });
     }
     final theme = Theme.of(context);
@@ -313,7 +313,7 @@ class LogCreateFormState extends State<LogCreateForm> {
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        child: Consumer<LogModel>(
+                        child: Consumer<LogProvider>(
                           builder: (context, logs, child) {
                             return ElevatedButton(
                               onPressed: () {

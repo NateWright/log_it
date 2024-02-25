@@ -100,7 +100,7 @@ class _LogDataViewState extends State<LogDataView> {
                   return;
                 }
                 if (context.mounted) {
-                  Provider.of<LogModel>(context, listen: false)
+                  Provider.of<LogProvider>(context, listen: false)
                       .deleteDataNumeric(widget.log, checked.values.toList());
                 }
                 setState(() {
@@ -114,7 +114,7 @@ class _LogDataViewState extends State<LogDataView> {
           ),
         ],
       ),
-      body: Consumer<LogModel>(
+      body: Consumer<LogProvider>(
         builder: (context, value, child) {
           fNumeric = value.getDataNumeric(widget.log);
           return FutureBuilder<List<Numeric>>(
