@@ -9,6 +9,7 @@ class LogProvider extends ChangeNotifier {
   /// Internal, private state of the cart.
   List<Log> _items = [];
   DbService dbService;
+  static int notificationLog = 0;
 
   LogProvider(this.dbService) {
     _updateLogs();

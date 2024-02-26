@@ -21,11 +21,12 @@ class LogView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)?.settings.arguments;
+    int index;
     if (args == null || args is! Map) {
-      Navigator.pop(context);
-      return const Text('Error');
+      index = LogProvider.notificationLog;
+    } else {
+      index = (args['index'] ?? '-1') as int;
     }
-    final int index = (args['index'] ?? '-1') as int;
     if (index == -1) {
       Navigator.pop(context);
       return const Text('Error');

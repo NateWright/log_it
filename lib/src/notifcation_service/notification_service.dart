@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:log_it/src/app.dart';
 import 'package:log_it/src/log_feature/LogView/log_view.dart';
+import 'package:log_it/src/log_feature/log_provider.dart';
 import 'package:no_context_navigation/no_context_navigation.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -36,7 +38,8 @@ class NotificationService {
         await _flutterLocalNotificationsPlugin
             .getNotificationAppLaunchDetails();
     if (details != null && details.didNotificationLaunchApp) {
-      navService.pushNamed(LogView.routeName, args: {'index': 0});
+      MyApp.initialRoute = LogView.routeName;
+      LogProvider.notificationLog = 0;
     }
   }
 
