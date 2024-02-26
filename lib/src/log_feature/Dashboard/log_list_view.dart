@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:log_it/src/log_feature/CreateForm/log_create_form.dart';
 import 'package:log_it/src/log_feature/log_provider.dart';
+import 'package:log_it/src/notifcation_service/notification_service.dart';
 import 'package:provider/provider.dart';
 
 import '../../settings/settings_view.dart';
@@ -27,6 +28,16 @@ class LogsListView extends StatelessWidget {
         ),
         centerTitle: true,
         actions: [
+          IconButton(
+            onPressed: () {
+              DateTime d = DateTime.now();
+              d = d.add(const Duration(minutes: 1));
+              debugPrint(d.toString());
+              NotificationService().scheduleNotification(
+                  title: 'Test scheduled', body: 'It worked', dateTime: d);
+            },
+            icon: Icon(Icons.plus_one),
+          ),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
