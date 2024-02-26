@@ -95,7 +95,8 @@ class DbService {
   Future<List<Numeric>> getLogValuesNumeric(Log log) async {
     final db = await database;
 
-    List<Map<String, Object?>> values = await db.query(log.dbName);
+    List<Map<String, Object?>> values =
+        await db.query(log.dbName, orderBy: 'date');
 
     return [
       for (final val in values) Numeric.fromMap(val),
