@@ -1,5 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:log_it/src/log_feature/LogView/log_view.dart';
+import 'package:no_context_navigation/no_context_navigation.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
@@ -9,8 +12,6 @@ class NotificationService {
   final MethodChannel platform = const MethodChannel(
       'log_it.NateWright.github.com/flutter_local_notification');
   late String timeZoneName;
-
-  NotificationService();
 
   Future<void> setup() async {
     // Initialize TimeZone
@@ -30,8 +31,13 @@ class NotificationService {
       android: initializationSettingsAndroid,
     );
     await _flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onDidReceiveNotificationResponse:
-            (NotificationResponse notificationResponse) async {});
+        onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
+    NotificationAppLaunchDetails? details =
+        await _flutterLocalNotificationsPlugin
+            .getNotificationAppLaunchDetails();
+    if (details != null && details.didNotificationLaunchApp) {
+      navService.pushNamed(LogView.routeName, args: {'index': 0});
+    }
   }
 
   notificationDetails() {
@@ -75,5 +81,16 @@ class NotificationService {
           UILocalNotificationDateInterpretation.absoluteTime,
       payload: payload,
     );
+  }
+
+  // Function that does something when notification is clicked
+  void onDidReceiveNotificationResponse(
+      NotificationResponse notificationResponse) async {
+    final String? payload = notificationResponse.payload;
+    if (notificationResponse.payload != null) {
+      debugPrint('notification payload: $payload');
+    }
+
+    navService.pushNamed(LogView.routeName, args: {'index': 0});
   }
 }

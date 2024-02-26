@@ -3,6 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:log_it/src/log_feature/Dashboard/log_list_view.dart';
 import 'package:log_it/src/log_feature/LogView/log_view.dart';
+import 'package:no_context_navigation/no_context_navigation.dart';
 
 import 'log_feature/CreateForm/log_create_form.dart';
 import 'settings/settings_controller.dart';
@@ -10,6 +11,7 @@ import 'settings/settings_view.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
+  static String initialRoute = '/';
   const MyApp({
     super.key,
     required this.settingsController,
@@ -61,8 +63,11 @@ class MyApp extends StatelessWidget {
           darkTheme: ThemeData.dark(),
           themeMode: settingsController.themeMode,
 
+          navigatorKey: NavigationService.navigationKey,
+
           // Define a function to handle named routes in order to support
           // Flutter web url navigation and deep linking.
+          initialRoute: initialRoute,
           onGenerateRoute: (RouteSettings routeSettings) {
             return MaterialPageRoute<void>(
               settings: routeSettings,

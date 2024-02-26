@@ -18,15 +18,16 @@ void main() async {
   await settingsController.loadSettings();
 
   WidgetsFlutterBinding.ensureInitialized();
-  NotificationService().setup();
+  await NotificationService().setup();
 
   // Run the app and pass in the SettingsController. The app listens to the
   // SettingsController for changes, then passes it further down to the
   // SettingsView.
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => LogProvider(DbService()),
-      child: MyApp(settingsController: settingsController),
-    ),
-  );
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (context) => LogProvider(DbService())),
+      Provider(create: (context) => NotificationService())
+    ],
+    child: MyApp(settingsController: settingsController),
+  ));
 }

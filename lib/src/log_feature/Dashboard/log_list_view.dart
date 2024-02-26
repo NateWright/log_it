@@ -31,7 +31,7 @@ class LogsListView extends StatelessWidget {
           IconButton(
             onPressed: () {
               DateTime d = DateTime.now();
-              d = d.add(const Duration(minutes: 1));
+              d = d.add(const Duration(seconds: 30));
               debugPrint(d.toString());
               NotificationService().scheduleNotification(
                   title: 'Test scheduled', body: 'It worked', dateTime: d);
