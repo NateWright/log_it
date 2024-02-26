@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:log_it/src/log_feature/LogView/log_view.dart';
 import 'package:log_it/src/log_feature/log.dart';
 
-class LogListItem extends StatelessWidget {
-  const LogListItem({
+class DashboardItem extends StatelessWidget {
+  const DashboardItem({
     super.key,
     required this.log,
     required this.index,

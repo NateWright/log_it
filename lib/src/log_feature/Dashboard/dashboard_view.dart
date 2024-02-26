@@ -5,11 +5,11 @@ import 'package:log_it/src/notifcation_service/notification_service.dart';
 import 'package:provider/provider.dart';
 
 import '../../settings/settings_view.dart';
-import './log_list_item.dart';
+import 'dashboard_item.dart';
 
 /// Displays a list of SampleItems.
-class LogsListView extends StatelessWidget {
-  const LogsListView({
+class Dashboard extends StatelessWidget {
+  const Dashboard({
     super.key,
   });
 
@@ -71,7 +71,7 @@ class LogsListView extends StatelessWidget {
             itemBuilder: (BuildContext context, int index) {
               final item = value.items[index];
 
-              return LogListItem(index: index, log: item);
+              return DashboardItem(index: index, log: item);
             },
             separatorBuilder: (context, index) {
               final theme = Theme.of(context);

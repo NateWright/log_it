@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:log_it/src/log_feature/Dashboard/log_list_view.dart';
+import 'package:log_it/src/log_feature/Dashboard/dashboard_view.dart';
 import 'package:log_it/src/log_feature/LogView/log_view.dart';
 import 'package:no_context_navigation/no_context_navigation.dart';
 
@@ -75,8 +75,8 @@ class MyApp extends StatelessWidget {
                 switch (routeSettings.name) {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
-                  case LogsListView.routeName:
-                    return const LogsListView();
+                  case Dashboard.routeName:
+                    return const Dashboard();
                   case LogCreateFormPage.routeName:
                     return const LogCreateFormPage();
                   case LogView.routeName:
