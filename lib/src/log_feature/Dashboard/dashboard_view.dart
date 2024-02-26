@@ -71,7 +71,7 @@ class Dashboard extends StatelessWidget {
             itemBuilder: (BuildContext context, int index) {
               final item = value.items[index];
 
-              return DashboardItem(index: index, log: item);
+              return DashboardItem(log: item);
             },
             separatorBuilder: (context, index) {
               final theme = Theme.of(context);

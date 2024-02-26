@@ -6,11 +6,9 @@ class DashboardItem extends StatelessWidget {
   const DashboardItem({
     super.key,
     required this.log,
-    required this.index,
   });
 
   final Log log;
-  final int index;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +28,7 @@ class DashboardItem extends StatelessWidget {
         Navigator.restorablePushNamed(
           context,
           LogView.routeName,
-          arguments: {'index': index},
+          arguments: {'id': log.id},
         );
       },
     );

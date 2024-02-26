@@ -94,6 +94,6 @@ class NotificationService {
       debugPrint('notification payload: $payload');
     }
 
-    navService.pushNamed(LogView.routeName, args: {'index': 0});
+    navService.pushNamed(LogView.routeName, args: {'id': 0});
   }
 }

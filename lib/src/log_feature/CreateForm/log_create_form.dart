@@ -68,10 +68,13 @@ class LogCreateFormState extends State<LogCreateForm> {
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)?.settings.arguments;
     if (args is Map) {
-      final int index = (args['index'] ?? '-1') as int;
-      setState(() {
-        log = Provider.of<LogProvider>(context, listen: false).items[index];
-      });
+      final int id = (args['id'] ?? '-1') as int;
+      Log? l = Provider.of<LogProvider>(context, listen: false).getLog(id);
+      if (l != null) {
+        setState(() {
+          log = l;
+        });
+      }
     }
     final theme = Theme.of(context);
     // Build a Form widget using the _formKey created above.

@@ -21,23 +21,23 @@ class LogView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)?.settings.arguments;
-    int index;
+    int id;
     if (args == null || args is! Map) {
-      index = LogProvider.notificationLog;
+      id = LogProvider.notificationLog;
     } else {
-      index = (args['index'] ?? '-1') as int;
+      id = (args['id'] ?? '-1') as int;
     }
-    if (index == -1) {
+    if (id == -1) {
       Navigator.pop(context);
       return const Text('Error');
     }
     final theme = Theme.of(context);
     return Consumer<LogProvider>(
       builder: (context, value, child) {
-        if (index >= value.items.length) {
+        Log? log = value.getLog(id);
+        if (log == null) {
           return const Center(child: CircularProgressIndicator());
         }
-        final Log log = value.items[index];
         return Scaffold(
           appBar: AppBar(
             elevation: 4,
@@ -66,7 +66,7 @@ class LogView extends StatelessWidget {
                         context,
                         LogCreateFormPage.routeName,
                         arguments: {
-                          'index': index,
+                          'id': id,
                         },
                       );
                     },

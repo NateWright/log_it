@@ -7,7 +7,7 @@ import 'package:log_it/src/log_feature/numeric.dart';
 
 class LogProvider extends ChangeNotifier {
   /// Internal, private state of the cart.
-  List<Log> _items = [];
+  Map<int, Log> _items = {};
   DbService dbService;
   static int notificationLog = 0;
 
@@ -16,7 +16,14 @@ class LogProvider extends ChangeNotifier {
   }
 
   /// An unmodifiable view of the items in the cart.
-  UnmodifiableListView<Log> get items => UnmodifiableListView(_items);
+  UnmodifiableListView<Log> get items => UnmodifiableListView(_items.values);
+
+  Log? getLog(int id) {
+    if (!_items.containsKey(id)) {
+      return null;
+    }
+    return _items[id];
+  }
 
   /// Adds new [log] to Database. Returns null on success and
   Future<void> add(Log log) {
@@ -40,7 +47,7 @@ class LogProvider extends ChangeNotifier {
   // }
 
   bool hasTitle(String title) {
-    if (_items.any((element) => element.title == title)) {
+    if (_items.values.any((element) => element.title == title)) {
       return true;
     }
     return false;
@@ -75,7 +82,7 @@ class LogProvider extends ChangeNotifier {
   }
 
   void _setLogs(List<Log> values) {
-    _items = values;
+    _items = {for (Log v in values) v.id: v};
     notifyListeners();
   }
 }
