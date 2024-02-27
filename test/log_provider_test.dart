@@ -5,7 +5,34 @@ import 'package:log_it/src/log_feature/log_provider.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class MockDbService extends Mock implements DbService {}
+class MockDbService extends Mock implements DbService {
+  // Map<int, Log> _logs = {};
+  // int idCounter = 1;
+  // @override
+  // Future<List<Log>> getLogs() async {
+  //   return _logs.values.toList();
+  // }
+
+  // @override
+  // Future<void> insertLog(Log log) async {
+  //   if (log.id == -1) {
+  //     log.id = idCounter;
+  //     idCounter++;
+  //   }
+  //   _logs[log.id] = log;
+  // }
+
+  // @override
+  // Future<void> deleteLog(Log log) async {
+  //   _logs.remove(log.id);
+  // }
+
+  // @override
+  // Future<int> updateLog(Log log) async {
+  //   _logs[log.id] = log;
+  //   return 1;
+  // }
+}
 
 void main() {
   late LogProvider sut;
@@ -16,10 +43,6 @@ void main() {
   test(
     'initial values are correct',
     () {
-      mockDbService = MockDbService();
-      when(() => mockDbService.getLogs()).thenAnswer((_) async => []);
-      sut = LogProvider(mockDbService);
-
       expect(sut.items, []);
     },
   );
@@ -27,34 +50,6 @@ void main() {
   group(
     'add()',
     () {
-      Log createBlankLog() {
-        return Log(
-            title: 'test',
-            description: 'test',
-            dataType: DataType.number,
-            unit: 'kg',
-            hasNotifications: false,
-            dateRange:
-                DateTimeRange(start: DateTime(2000), end: DateTime(2001)),
-            startTime: const TimeOfDay(hour: 1, minute: 1),
-            interval: TimeInterval(10, TimeIntervalUnits.days));
-      }
-
-      Log createLog() {
-        final log = Log(
-            title: 'test',
-            description: 'test',
-            dataType: DataType.number,
-            unit: 'kg',
-            hasNotifications: false,
-            dateRange:
-                DateTimeRange(start: DateTime(2000), end: DateTime(2001)),
-            startTime: const TimeOfDay(hour: 1, minute: 1),
-            interval: TimeInterval(10, TimeIntervalUnits.days));
-        log.id = 1;
-        return log;
-      }
-
       test(
         'Add with Log.id = -1',
         () {
@@ -116,4 +111,88 @@ void main() {
       });
     },
   );
+
+  group(
+    'delete()',
+    () {
+      test(
+        'Delete',
+        () async {
+          Log log = createBlankLog();
+          mockDbService = MockDbService();
+          when(() => mockDbService.getLogs()).thenAnswer((_) async => []);
+          when(() => mockDbService.insertLog(log)).thenAnswer((_) async {
+            return;
+          });
+          when(() => mockDbService.deleteLog(log)).thenAnswer((_) async {
+            return;
+          });
+          when(() => mockDbService.updateLog(log)).thenAnswer((_) async {
+            return 1;
+          });
+          when(() => mockDbService.getLogs()).thenAnswer((invocation) async {
+            log.id = 1;
+            return [log];
+          });
+          sut = LogProvider(mockDbService);
+
+          await sut.add(log);
+          await sut.delete(log);
+          verify(() => mockDbService.deleteLog(log)).called(1);
+        },
+      );
+
+      test(
+        'Delete Empty',
+        () async {
+          Log log = createBlankLog();
+          mockDbService = MockDbService();
+          when(() => mockDbService.getLogs()).thenAnswer((_) async => []);
+          when(() => mockDbService.insertLog(log)).thenAnswer((_) async {
+            return;
+          });
+          when(() => mockDbService.deleteLog(log)).thenAnswer((_) async {
+            return;
+          });
+          when(() => mockDbService.updateLog(log)).thenAnswer((_) async {
+            return 1;
+          });
+          when(() => mockDbService.getLogs()).thenAnswer((invocation) async {
+            log.id = 1;
+            return [log];
+          });
+          sut = LogProvider(mockDbService);
+
+          await sut.delete(log);
+          verifyNever(() => mockDbService.deleteLog(log));
+        },
+      );
+    },
+  );
+}
+
+Log createBlankLog() {
+  return Log(
+      title: 'test',
+      description: 'test',
+      dataType: DataType.number,
+      unit: 'kg',
+      hasNotifications: false,
+      dateRange: DateTimeRange(start: DateTime(2000), end: DateTime(2001)),
+      startTime: const TimeOfDay(hour: 1, minute: 1),
+      interval: TimeInterval(10, TimeIntervalUnits.days));
+}
+
+Log createLog() {
+  final log = Log(
+      title: 'test',
+      description: 'test',
+      dataType: DataType.number,
+      unit: 'kg',
+      hasNotifications: false,
+      dateRange: DateTimeRange(start: DateTime(2000), end: DateTime(2001)),
+      startTime: const TimeOfDay(hour: 1, minute: 1),
+      interval: TimeInterval(10, TimeIntervalUnits.days));
+  log.id = 1;
+  return log;
 }
