@@ -34,7 +34,11 @@ class Dashboard extends StatelessWidget {
               d = d.add(const Duration(seconds: 30));
               debugPrint(d.toString());
               NotificationService().scheduleNotification(
-                  title: 'Test scheduled', body: 'It worked', dateTime: d);
+                  title: 'Test scheduled',
+                  body: 'It worked',
+                  payload:
+                      '${Provider.of<LogProvider>(context, listen: false).items[0].id}',
+                  dateTime: d);
             },
             icon: Icon(Icons.plus_one),
           ),

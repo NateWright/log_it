@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:log_it/src/app.dart';
@@ -37,9 +36,13 @@ class NotificationService {
     NotificationAppLaunchDetails? details =
         await _flutterLocalNotificationsPlugin
             .getNotificationAppLaunchDetails();
-    if (details != null && details.didNotificationLaunchApp) {
+    if (details != null &&
+        details.didNotificationLaunchApp &&
+        details.notificationResponse != null &&
+        details.notificationResponse!.payload != null) {
+      String payload = details.notificationResponse!.payload!;
       MyApp.initialRoute = LogView.routeName;
-      LogProvider.notificationLog = 0;
+      LogProvider.notificationLog = int.parse(payload);
     }
   }
 
@@ -90,10 +93,12 @@ class NotificationService {
   void onDidReceiveNotificationResponse(
       NotificationResponse notificationResponse) async {
     final String? payload = notificationResponse.payload;
-    if (notificationResponse.payload != null) {
-      debugPrint('notification payload: $payload');
+    if (payload == null) {
+      return;
     }
 
-    navService.pushNamed(LogView.routeName, args: {'id': 0});
+    int id = int.parse(payload);
+
+    navService.pushNamed(LogView.routeName, args: {'id': id});
   }
 }
