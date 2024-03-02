@@ -38,12 +38,49 @@ void main() {
   late LogProvider sut;
   late MockDbService mockDbService;
 
-  setUp(() {});
+  mockGetLogs(List<Log> logs) =>
+      when(() => mockDbService.getLogs()).thenAnswer((_) async => logs);
 
-  test(
-    'initial values are correct',
+  mockInsertLog(Log log) =>
+      when(() => mockDbService.insertLog(log)).thenAnswer((_) async {});
+  mockUpdateLog(Log log, int ret) =>
+      when(() => mockDbService.updateLog(log)).thenAnswer((_) async {
+        return ret;
+      });
+  mockDeleteLog(Log log) =>
+      when(() => mockDbService.deleteLog(log)).thenAnswer((_) async {
+        return;
+      });
+
+  setUp(() {
+    mockDbService = MockDbService();
+  });
+
+  group(
+    'constructor',
     () {
-      expect(sut.items, []);
+      test(
+        'initial values are correct',
+        () {
+          mockGetLogs([]);
+          sut = LogProvider(mockDbService);
+          expect(sut.items, []);
+        },
+      );
+
+      test(
+        'gets items on init',
+        () async {
+          Log log = createLog();
+          mockGetLogs([log]);
+
+          sut = LogProvider(mockDbService);
+
+          await Future.doWhile(() => !sut.loading);
+
+          expect(sut.items, [log]);
+        },
+      );
     },
   );
 
@@ -54,17 +91,13 @@ void main() {
         'Add with Log.id = -1',
         () {
           Log blank = createBlankLog();
-          mockDbService = MockDbService();
-          when(() => mockDbService.getLogs()).thenAnswer((_) async => []);
-          when(() => mockDbService.insertLog(blank)).thenAnswer((_) async {
-            return;
-          });
-          when(() => mockDbService.updateLog(blank)).thenAnswer((_) async {
-            return 1;
-          });
+          mockGetLogs([]);
+          mockInsertLog(blank);
+          mockUpdateLog(blank, 1);
           sut = LogProvider(mockDbService);
 
           sut.add(blank);
+
           verify(() => mockDbService.insertLog(blank)).called(1);
           verifyNever(() => mockDbService.updateLog(blank));
         },
@@ -74,14 +107,10 @@ void main() {
         'Add with Log.id = 1',
         () {
           Log log = createLog();
-          mockDbService = MockDbService();
-          when(() => mockDbService.getLogs()).thenAnswer((_) async => []);
-          when(() => mockDbService.insertLog(log)).thenAnswer((_) async {
-            return;
-          });
-          when(() => mockDbService.updateLog(log)).thenAnswer((_) async {
-            return 1;
-          });
+          mockGetLogs([]);
+          mockInsertLog(log);
+          mockUpdateLog(log, 1);
+
           sut = LogProvider(mockDbService);
 
           sut.add(log);
@@ -92,18 +121,14 @@ void main() {
 
       test('adds log to _items', () async {
         Log blank = createBlankLog();
-        mockDbService = MockDbService();
-        when(() => mockDbService.getLogs()).thenAnswer((_) async => []);
-        when(() => mockDbService.insertLog(blank)).thenAnswer((_) async {
-          return;
-        });
-        when(() => mockDbService.updateLog(blank)).thenAnswer((_) async {
-          return 1;
-        });
-        when(() => mockDbService.getLogs()).thenAnswer((invocation) async {
-          return [blank];
-        });
+
+        mockGetLogs([]);
+        mockInsertLog(blank);
+        mockUpdateLog(blank, 1);
+
         sut = LogProvider(mockDbService);
+
+        mockGetLogs([blank]);
 
         await sut.add(blank);
 
@@ -119,17 +144,10 @@ void main() {
         'Delete',
         () async {
           Log log = createBlankLog();
-          mockDbService = MockDbService();
-          when(() => mockDbService.getLogs()).thenAnswer((_) async => []);
-          when(() => mockDbService.insertLog(log)).thenAnswer((_) async {
-            return;
-          });
-          when(() => mockDbService.deleteLog(log)).thenAnswer((_) async {
-            return;
-          });
-          when(() => mockDbService.updateLog(log)).thenAnswer((_) async {
-            return 1;
-          });
+          mockGetLogs([]);
+          mockInsertLog(log);
+          mockDeleteLog(log);
+          mockUpdateLog(log, 1);
           when(() => mockDbService.getLogs()).thenAnswer((invocation) async {
             log.id = 1;
             return [log];
@@ -146,7 +164,6 @@ void main() {
         'Delete Empty',
         () async {
           Log log = createBlankLog();
-          mockDbService = MockDbService();
           when(() => mockDbService.getLogs()).thenAnswer((_) async => []);
           when(() => mockDbService.insertLog(log)).thenAnswer((_) async {
             return;

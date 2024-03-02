@@ -9,10 +9,13 @@ class LogProvider extends ChangeNotifier {
   /// Internal, private state of the cart.
   Map<int, Log> _items = {};
   DbService dbService;
+  bool loading = false;
   static int notificationLog = 0;
 
   LogProvider(this.dbService) {
-    _updateLogs();
+    _updateLogs().then((value) {
+      loading = false;
+    });
   }
 
   /// An unmodifiable view of the items in the cart.
@@ -77,10 +80,11 @@ class LogProvider extends ChangeNotifier {
     return dbService.getLogValuesNumeric(log);
   }
 
-  void _updateLogs() {
+  Future<void> _updateLogs() {
+    loading = true;
     final Future<List<Log>> future = dbService.getLogs();
 
-    future.then((value) => _setLogs(value));
+    return future.then((value) => _setLogs(value));
   }
 
   void _setLogs(List<Log> values) {
