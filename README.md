@@ -1,4 +1,4 @@
-# log_it
+# log_it <a href="https://github.com/NateWright/log_it/actions"><img src="https://github.com/NateWright/log_it/workflows/test-my-app/badge.svg" alt="Build Status"></a>
 
 A new Flutter project.
 
