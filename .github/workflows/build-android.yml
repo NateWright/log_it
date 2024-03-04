@@ -14,5 +14,5 @@ jobs:
         - run: flutter build apk
         - uses: ncipollo/release-action@v1
           with:
-              tag: ${{ github.ref }}
+              commit: ${{ github.sha }}
               artifacts: ./build/app/outputs/flutter-apk/app-release.apk
