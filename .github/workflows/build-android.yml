@@ -13,6 +13,6 @@ jobs:
         - run: flutter test
         - run: flutter build apk
         - uses: ncipollo/release-action@v1
-            with:
+          with:
               tag: ${{ github.ref }}
               artifacts: build/app/outputs/bundle/release/*
