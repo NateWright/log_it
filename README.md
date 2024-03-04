@@ -1,6 +1,9 @@
 # log_it 
 
-<a href="https://github.com/NateWright/log_it/actions"><img src="https://github.com/NateWright/log_it/workflows/test-my-app/badge.svg" alt="Build Status"></a>
+[![test](https://github.com/NateWright/log_it/actions/workflows/tests.yml/badge.svg)](https://github.com/NateWright/log_it/actions/workflows/tests.yml)
+
+[![build-android](https://github.com/NateWright/log_it/actions/workflows/build-android.yml/badge.svg)](https://github.com/NateWright/log_it/actions/workflows/build-android.yml)
+
 
 A new Flutter project.
 
