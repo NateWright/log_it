@@ -4,6 +4,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:log_it/src/log_feature/Dashboard/dashboard_view.dart';
 import 'package:log_it/src/log_feature/LogView/log_view.dart';
 import 'package:no_context_navigation/no_context_navigation.dart';
+import 'package:log_it/src/log_feature/LogView/graph_view.dart';
+import 'package:log_it/src/log_feature/log.dart';
 
 import 'log_feature/CreateForm/log_create_form.dart';
 import 'settings/settings_controller.dart';
@@ -81,6 +83,9 @@ class MyApp extends StatelessWidget {
                     return const LogCreateFormPage();
                   case LogView.routeName:
                     return const LogView();
+                  case GraphView.routeName:
+                  final log = routeSettings.arguments as Log?;
+                  return GraphView(log: log);
                   default:
                     throw UnimplementedError('No page for route');
                 }
