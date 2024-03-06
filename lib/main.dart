@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:log_it/src/db_service/db_service.dart';
 import 'package:log_it/src/log_feature/log_provider.dart';
@@ -20,12 +22,19 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService().setup();
 
+  DbService dbService;
+  if (Platform.isLinux) {
+    dbService = DbService.linux();
+  } else {
+    dbService = DbService();
+  }
+
   // Run the app and pass in the SettingsController. The app listens to the
   // SettingsController for changes, then passes it further down to the
   // SettingsView.
   runApp(MultiProvider(
     providers: [
-      ChangeNotifierProvider(create: (context) => LogProvider(DbService())),
+      ChangeNotifierProvider(create: (context) => LogProvider(dbService)),
       Provider(create: (context) => NotificationService())
     ],
     child: MyApp(settingsController: settingsController),

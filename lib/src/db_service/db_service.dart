@@ -1,22 +1,50 @@
 import 'dart:async';
+import 'dart:io' as io;
 
+import 'package:path/path.dart' as p;
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/numeric.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class DbService {
   late Future<Database> database;
+  late String _path;
 
   DbService() {
-    database = _initializeDB();
+    init() async {
+      String path = await getDatabasesPath();
+      _path = join(path, 'database.db');
+    }
+
+    database = init().then(
+      (_) {
+        return _initializeDB();
+      },
+    );
+  }
+
+  DbService.linux() {
+    init() async {
+      final io.Directory appDocumentsDir =
+          await getApplicationDocumentsDirectory();
+      _path = p.join(appDocumentsDir.path, "databases", "database.db");
+    }
+
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+    database = init().then(
+      (_) {
+        return _initializeDB();
+      },
+    );
   }
 
   Future<Database> _initializeDB() async {
-    String path = await getDatabasesPath();
-
     return openDatabase(
-      join(path, 'database.db'),
+      _path,
       onCreate: (database, version) async {
         await database.execute(
           'CREATE TABLE logs(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, description TEXT, dataType INTEGER, unit TEXT, hasNotifications INTEGER, dateRangeBegin TEXT, dateRangeEnd TEXT, startTimeHour INTEGER, startTimeMinute INTEGER, intervalInterval INTEGER, intervalUnit INTEGER)',

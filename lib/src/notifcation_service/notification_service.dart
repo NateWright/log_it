@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:log_it/src/app.dart';
@@ -12,13 +15,14 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
   final MethodChannel platform = const MethodChannel(
       'log_it.NateWright.github.com/flutter_local_notification');
-  late String timeZoneName;
 
   Future<void> setup() async {
     // Initialize TimeZone
-    tz.initializeTimeZones();
-    timeZoneName = await platform.invokeMethod('getTimeZoneName');
-    tz.setLocalLocation(tz.getLocation(timeZoneName));
+    if (!(kIsWeb || Platform.isLinux)) {
+      tz.initializeTimeZones();
+      String timeZoneName = await platform.invokeMethod('getTimeZoneName');
+      tz.setLocalLocation(tz.getLocation(timeZoneName));
+    }
 
     // Initialize Notifications
     _flutterLocalNotificationsPlugin
@@ -28,11 +32,28 @@ class NotificationService {
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('app_icon');
 
-    var initializationSettings = const InitializationSettings(
-      android: initializationSettingsAndroid,
+    final LinuxInitializationSettings initializationSettingsLinux =
+        LinuxInitializationSettings(
+      defaultActionName: 'Open notification',
+      defaultIcon: AssetsLinuxIcon('icons/app_icon.png'),
     );
-    await _flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
+
+    final initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      linux: initializationSettingsLinux,
+    );
+    await _flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
+    );
+
+    await handleStartupNotifications();
+  }
+
+  handleStartupNotifications() async {
+    if (kIsWeb || Platform.isLinux) {
+      return;
+    }
     NotificationAppLaunchDetails? details =
         await _flutterLocalNotificationsPlugin
             .getNotificationAppLaunchDetails();
@@ -69,14 +90,6 @@ class NotificationService {
       id,
       title,
       body,
-      // tz.TZDateTime(
-      //   tz.local,
-      //   dateTime.year,
-      //   dateTime.month,
-      //   dateTime.day,
-      //   dateTime.hour,
-      //   dateTime.minute,
-      // ),
       tz.TZDateTime.from(
         dateTime,
         tz.local,
