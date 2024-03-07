@@ -9,7 +9,7 @@ class GraphView extends StatefulWidget {
   static const routeName = '/graph_view';
   final Log log;
 
-  GraphView({Key? key, required this.log}) : super(key: key);
+  const GraphView({super.key, required this.log});
 
   @override
   GraphViewState createState() => GraphViewState();
