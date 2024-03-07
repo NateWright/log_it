@@ -23,6 +23,9 @@ class GraphView extends StatefulWidget {
 
 class GraphViewState extends State<GraphView> {
    bool isBarGraph = true; // Set to false for line graph
+   bool showGridLines = true;
+   Color graphColor = Colors.blue;
+   Color graphBackgroundColor = Colors.white;
 
   @override
   Widget build(BuildContext context) {
@@ -69,37 +72,40 @@ class GraphViewState extends State<GraphView> {
               child: isBarGraph ? 
                  BarChart(
                     BarChartData(
+                      backgroundColor: graphBackgroundColor,
                       barGroups: [
                         BarChartGroupData(x: 0, barsSpace: 8, barRods: [
                           BarChartRodData(
                             toY: 10,
-                            color: Colors.blue,
+                            color: graphColor,
                           ),
                         ]),
                         BarChartGroupData(x: 1, barsSpace: 8, barRods: [
                           BarChartRodData(
                             toY: 10,
-                            color: Colors.green,
+                            color: graphColor,
                           ),
                         ]),
                         BarChartGroupData(x: 2, barsSpace: 8, barRods: [
                           BarChartRodData(
                             toY: 10,
-                            color: Colors.orange,
+                            color: graphColor,
                           ),
                         ]),
                         BarChartGroupData(x: 3, barsSpace: 8, barRods: [
                           BarChartRodData(
                             toY: 10,
-                            color: Colors.purple,
+                            color: graphColor,
                           ),
                         ]),
                       ],
+                      gridData: FlGridData(show: showGridLines),
                     ),
                   )
                 : LineChart(
                     LineChartData(
                       titlesData: FlTitlesData(show: true),
+                      backgroundColor: graphBackgroundColor,
                       lineBarsData: [
                         LineChartBarData(
                           spots: [
@@ -108,37 +114,57 @@ class GraphViewState extends State<GraphView> {
                             FlSpot(2, 7),
                             FlSpot(3, 4),
                           ],
-                          color: Colors.red,
+                          color: graphColor,
                         ),
                       ],
+                      gridData: FlGridData(show: showGridLines),
                     ),
                   ),
             ),
              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
+                 ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        // Rotate through a predefined set of colors
+                        graphColor = _getNextColor(graphColor);
+                      });
+                    },
+                    child: Text('Rotate Color'),
+                  ),
                   ElevatedButton(
                     onPressed: () {
-                      // Placeholder implementation
-                      print('Button 1 Pressed');
+                      setState(() {
+                        // Rotate through a predefined set of background colors
+                        graphBackgroundColor =
+                            _getNextBackgroundColor(graphBackgroundColor);
+                      });
                     },
-                    child: Text('Button 1'),
+                    child: Text('Rotate Background Color'),
+                  ),
+                ],
+             ),
+             Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                   onPressed: () {
+                      setState(() {
+                        // Toggle gridlines
+                        showGridLines = !showGridLines;
+                      });
+                    },
+                    child: Text('Toggle Gridlines'),
                   ),
                   ElevatedButton(
                     onPressed: () {
                       // Placeholder implementation
-                      print('Button 2 Pressed');
+                      print('Button 4 Pressed');
                     },
-                    child: Text('Button 2'),
+                    child: Text('Button 4'),
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Placeholder implementation
-                      print('Button 3 Pressed');
-                    },
-                    child: Text('Button 3'),
-                  ),
-          ],
+              ],
         ),
       ],
       ),
@@ -153,4 +179,34 @@ class GraphViewState extends State<GraphView> {
       ),
     );
   }
+}
+
+ Color _getNextColor(Color currentColor) {
+    List<Color> availableColors = [
+      Colors.red,
+      Colors.green,
+      Colors.blue,
+      Colors.orange,
+      Colors.yellow,
+      Colors.purple,
+    ];
+
+    int currentIndex = availableColors.indexOf(currentColor);
+    int nextIndex = (currentIndex + 1) % availableColors.length;
+
+    return availableColors[nextIndex];
+}
+Color _getNextBackgroundColor(Color currentColor) {
+    // Predefined set of background colors
+    List<Color> availableBackgroundColors = [
+      Colors.white,
+      Colors.grey,
+      Colors.black,
+      Colors.blueGrey,
+      Colors.teal,
+    ];
+    int currentIndex = availableBackgroundColors.indexOf(currentColor);
+    int nextIndex = (currentIndex + 1) % availableBackgroundColors.length;
+
+    return availableBackgroundColors[nextIndex];
 }
