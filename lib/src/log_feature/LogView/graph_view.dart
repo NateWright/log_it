@@ -77,6 +77,15 @@ class GraphViewState extends State<GraphView> {
                 },
               ),
             ),
+            DropdownButton(
+              items: [
+                for (final val in [1, 2])
+                  DropdownMenuItem(value: val, child: Text('$val'))
+              ],
+              onChanged: (item) {
+                throw UnimplementedError();
+              },
+            ), // TODO: Use this example
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
