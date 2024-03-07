@@ -145,7 +145,7 @@ class GraphViewState extends State<GraphView> {
           LineChartBarData(
             spots: [
               for (final (index, n) in data.indexed)
-                FlSpot(index.toDouble(), n.data)
+                FlSpot(n.date.millisecondsSinceEpoch.toDouble(), n.data)
             ],
             color: graphColor,
           ),
