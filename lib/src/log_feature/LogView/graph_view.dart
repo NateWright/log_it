@@ -16,10 +16,11 @@ class GraphView extends StatefulWidget {
 }
 
 class GraphViewState extends State<GraphView> {
-  bool isBarGraph = true; // Set to false for line graph
+  bool isBarGraph = false;
   bool showGridLines = true;
   Color graphColor = Colors.blue;
   Color graphBackgroundColor = Colors.white;
+
 
   @override
   Widget build(BuildContext context) {
@@ -77,60 +78,77 @@ class GraphViewState extends State<GraphView> {
                 },
               ),
             ),
-            DropdownButton(
-              items: [
-                for (final val in [1, 2])
-                  DropdownMenuItem(value: val, child: Text('$val'))
-              ],
-              onChanged: (item) {
-                throw UnimplementedError();
-              },
-            ), // TODO: Use this example
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton(
-                  onPressed: () {
+              const Text('Line Color', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+               DropdownButton<Color>(
+                  value: graphColor,
+                  items: [
+                    for (final color in [
+                      Colors.red,
+                      Colors.green,
+                      Colors.blue,
+                      Colors.orange,
+                      Colors.yellow,
+                      Colors.purple,
+                    ])
+                      DropdownMenuItem<Color>(
+                        value: color,
+                        child: Container(
+                          color: color,
+                          height: 20,
+                        ),
+                      )
+                  ],
+                  onChanged: (selectedColor) {
                     setState(() {
-                      // Rotate through a predefined set of colors
-                      graphColor = _getNextColor(graphColor);
+                      graphColor = selectedColor!;
                     });
                   },
-                  child: Text('Rotate Color'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      // Rotate through a predefined set of background colors
-                      graphBackgroundColor =
-                          _getNextBackgroundColor(graphBackgroundColor);
-                    });
-                  },
-                  child: Text('Rotate Background Color'),
+                  hint: Text('Select Line Color'),
                 ),
               ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton(
-                  onPressed: () {
+                const Text('Background Color', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+                DropdownButton<Color>(
+                  value: graphBackgroundColor,
+                  items: [
+                    for (final bgColor in [
+                      Colors.white,
+                      Colors.grey,
+                      Colors.black,
+                      Colors.blueGrey,
+                      Colors.teal,
+                    ])
+                      DropdownMenuItem<Color>(
+                        value: bgColor,
+                        child: Container(
+                          color: bgColor,
+                          height: 20, 
+                        ),
+                      )
+                  ],
+                  onChanged: (selectedBgColor) {
                     setState(() {
-                      // Toggle gridlines
-                      showGridLines = !showGridLines;
+                      graphBackgroundColor = selectedBgColor!;
                     });
                   },
-                  child: Text('Toggle Gridlines'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    // Placeholder implementation
-                    print('Button 4 Pressed');
-                  },
-                  child: Text('Button 4'),
+                  hint: Text('Select Background Color'),
                 ),
               ],
             ),
+             ElevatedButton(
+              onPressed: () {
+              setState(() {
+                showGridLines = !showGridLines;
+              });
+            },
+            child: Text('Toggle Gridlines'),
+          ),
           ],
         ),
       ),
@@ -154,7 +172,7 @@ class GraphViewState extends State<GraphView> {
           LineChartBarData(
             spots: [
               for (final (index, n) in data.indexed)
-                FlSpot(n.date.millisecondsSinceEpoch.toDouble(), n.data)
+                FlSpot(index.toDouble(), n.data)
             ],
             color: graphColor,
           ),
@@ -187,33 +205,3 @@ class GraphViewState extends State<GraphView> {
   }
 }
 
-Color _getNextColor(Color currentColor) {
-  List<Color> availableColors = [
-    Colors.red,
-    Colors.green,
-    Colors.blue,
-    Colors.orange,
-    Colors.yellow,
-    Colors.purple,
-  ];
-
-  int currentIndex = availableColors.indexOf(currentColor);
-  int nextIndex = (currentIndex + 1) % availableColors.length;
-
-  return availableColors[nextIndex];
-}
-
-Color _getNextBackgroundColor(Color currentColor) {
-  // Predefined set of background colors
-  List<Color> availableBackgroundColors = [
-    Colors.white,
-    Colors.grey,
-    Colors.black,
-    Colors.blueGrey,
-    Colors.teal,
-  ];
-  int currentIndex = availableBackgroundColors.indexOf(currentColor);
-  int nextIndex = (currentIndex + 1) % availableBackgroundColors.length;
-
-  return availableBackgroundColors[nextIndex];
-}
