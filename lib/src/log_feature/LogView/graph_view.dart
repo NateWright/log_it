@@ -17,6 +17,7 @@ class GraphView extends StatefulWidget {
 
 class GraphViewState extends State<GraphView> {
   bool isBarGraph = false;
+  bool isCurve = false;
   bool showGridLines = true;
   Color graphColor = Colors.blue;
   Color graphBackgroundColor = Colors.white;
@@ -149,16 +150,16 @@ class GraphViewState extends State<GraphView> {
             },
             child: Text('Toggle Gridlines'),
           ),
+          ElevatedButton(
+              onPressed: () {
+              setState(() {
+                isCurve = !isCurve;
+              });
+            },
+            child: Text('Toggle Curves (Line)'),
+          ),
           ],
         ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Implement any action for the floating action button if needed
-        },
-        tooltip: 'Action',
-        child: const Icon(Icons.add),
       ),
     );
   }
@@ -170,6 +171,7 @@ class GraphViewState extends State<GraphView> {
         backgroundColor: graphBackgroundColor,
         lineBarsData: [
           LineChartBarData(
+            isCurved: isCurve,
             spots: [
               for (final (index, n) in data.indexed)
                 FlSpot(index.toDouble(), n.data)
