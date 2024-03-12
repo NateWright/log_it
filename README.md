@@ -5,31 +5,14 @@
 [![build-android](https://github.com/NateWright/log_it/actions/workflows/build-android.yml/badge.svg)](https://github.com/NateWright/log_it/actions/workflows/build-android.yml)
 
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application that follows the
-[simple app state management
-tutorial](https://flutter.dev/docs/development/data-and-backend/state-mgmt/simple).
-
-For help getting started with Flutter development, view the
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-
-## Assets
-
-The `assets` directory houses images, fonts, and any other files you want to
-include with your application.
-
-The `assets/images` directory contains [resolution-aware
-images](https://flutter.dev/docs/development/ui/assets-and-images#resolution-aware).
-
-## Localization
-
-This project generates localized messages based on arb files found in
-the `lib/src/localization` directory.
-
-To support additional languages, please visit the tutorial on
-[Internationalizing Flutter
-apps](https://flutter.dev/docs/development/accessibility-and-localization/internationalization)
+### Setup Instructions
+1. Install android studio with these instructions. [Download](https://developer.android.com/studio) [Install](https://developer.android.com/studio/install) 
+2. Create an Android Virtual Device with these [Instructions](https://developer.android.com/studio/run/managing-avds)
+    * Use Android 14 and latest SDK.
+3. Install Flutter [Download](https://docs.flutter.dev/get-started/install)
+4. Clone repo with `git clone https://github.com/NateWright/log_it.git`
+5. Get Dependencies
+    * Open the repo in the terminal and run `flutter pub get`
+6. Open log_it repo in Android Studio
+7. Start android virtual device
+8. Click green triangle to launch program
