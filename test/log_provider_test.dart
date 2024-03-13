@@ -2,37 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:log_it/src/db_service/db_service.dart';
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/log_provider.dart';
+import 'package:log_it/src/log_feature/numeric.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class MockDbService extends Mock implements DbService {
-  // Map<int, Log> _logs = {};
-  // int idCounter = 1;
-  // @override
-  // Future<List<Log>> getLogs() async {
-  //   return _logs.values.toList();
-  // }
-
-  // @override
-  // Future<void> insertLog(Log log) async {
-  //   if (log.id == -1) {
-  //     log.id = idCounter;
-  //     idCounter++;
-  //   }
-  //   _logs[log.id] = log;
-  // }
-
-  // @override
-  // Future<void> deleteLog(Log log) async {
-  //   _logs.remove(log.id);
-  // }
-
-  // @override
-  // Future<int> updateLog(Log log) async {
-  //   _logs[log.id] = log;
-  //   return 1;
-  // }
-}
+class MockDbService extends Mock implements DbService {}
 
 void main() {
   late LogProvider sut;
@@ -50,6 +24,23 @@ void main() {
   mockDeleteLog(Log log) =>
       when(() => mockDbService.deleteLog(log)).thenAnswer((_) async {
         return;
+      });
+
+  mockAddDataNumeric(Log log, Numeric numeric) =>
+      when(() => mockDbService.insertLogValueNumeric(log, numeric))
+          .thenAnswer((_) async {
+        return;
+      });
+
+  mockDeleteDataNumeric(Log log, List<Numeric> numerics) =>
+      when(() => mockDbService.deleteLogValuesNumeric(log, numerics))
+          .thenAnswer((_) async {
+        return;
+      });
+
+  mockGetDataNumeric(Log log, List<Numeric> values) =>
+      when(() => mockDbService.getLogValuesNumeric(log)).thenAnswer((_) async {
+        return values;
       });
 
   setUp(() {
@@ -164,16 +155,10 @@ void main() {
         'Delete Empty',
         () async {
           Log log = createBlankLog();
-          when(() => mockDbService.getLogs()).thenAnswer((_) async => []);
-          when(() => mockDbService.insertLog(log)).thenAnswer((_) async {
-            return;
-          });
-          when(() => mockDbService.deleteLog(log)).thenAnswer((_) async {
-            return;
-          });
-          when(() => mockDbService.updateLog(log)).thenAnswer((_) async {
-            return 1;
-          });
+          mockGetLogs([]);
+          mockInsertLog(log);
+          mockDeleteLog(log);
+          mockUpdateLog(log, 1);
           when(() => mockDbService.getLogs()).thenAnswer((invocation) async {
             log.id = 1;
             return [log];
@@ -182,6 +167,126 @@ void main() {
 
           await sut.delete(log);
           verifyNever(() => mockDbService.deleteLog(log));
+        },
+      );
+    },
+  );
+
+  group(
+    'addDataNumeric()',
+    () {
+      test(
+        'test adding data to good log',
+        () async {
+          Log log = createLog();
+          Numeric n = Numeric(date: DateTime(2000), data: 10.0);
+          mockGetLogs([log]);
+          mockAddDataNumeric(log, n);
+          sut = LogProvider(mockDbService);
+
+          await Future.doWhile(() => !sut.loading);
+
+          await sut.addDataNumeric(log, n);
+
+          verify(() => mockDbService.insertLogValueNumeric(log, n)).called(1);
+        },
+      );
+
+      test(
+        'test adding data to non existent log',
+        () async {
+          Log log = createLog();
+          Numeric n = Numeric(date: DateTime(2000), data: 10.0);
+          mockGetLogs([]);
+          mockAddDataNumeric(log, n);
+          sut = LogProvider(mockDbService);
+
+          await Future.doWhile(() => !sut.loading);
+
+          await sut.addDataNumeric(log, n);
+
+          verifyNever(() => mockDbService.insertLogValueNumeric(log, n));
+        },
+      );
+    },
+  );
+
+  group(
+    'deleteDataNumeric()',
+    () {
+      test(
+        'test deleting data from good log',
+        () async {
+          Log log = createLog();
+          Numeric n = Numeric(date: DateTime(2000), data: 10.0);
+          mockGetLogs([log]);
+          mockDeleteDataNumeric(log, [n]);
+          sut = LogProvider(mockDbService);
+
+          await Future.doWhile(() => !sut.loading);
+
+          await sut.deleteDataNumeric(log, [n]);
+
+          verify(() => mockDbService.deleteLogValuesNumeric(log, [n]))
+              .called(1);
+        },
+      );
+
+      test(
+        'test deleting data to non existent log',
+        () async {
+          Log log = createLog();
+          Numeric n = Numeric(date: DateTime(2000), data: 10.0);
+          mockGetLogs([]);
+          mockDeleteDataNumeric(log, [n]);
+          sut = LogProvider(mockDbService);
+
+          await Future.doWhile(() => !sut.loading);
+
+          await sut.deleteDataNumeric(log, [n]);
+
+          verifyNever(() => mockDbService.deleteLogValuesNumeric(log, [n]));
+        },
+      );
+    },
+  );
+
+  group(
+    'getDataNumeric()',
+    () {
+      test(
+        'test getting data from good log',
+        () async {
+          Log log = createLog();
+          Numeric n = Numeric(date: DateTime(2000), data: 10.0);
+          mockGetLogs([log]);
+          mockGetDataNumeric(log, [n]);
+          sut = LogProvider(mockDbService);
+
+          await Future.doWhile(() => !sut.loading);
+
+          List<Numeric> l = await sut.getDataNumeric(log);
+
+          expect([n], l);
+
+          verify(() => mockDbService.getLogValuesNumeric(log)).called(1);
+        },
+      );
+
+      test(
+        'test getting data on non existent log',
+        () async {
+          Log log = createLog();
+          Numeric n = Numeric(date: DateTime(2000), data: 10.0);
+          mockGetLogs([]);
+          mockDeleteDataNumeric(log, [n]);
+          sut = LogProvider(mockDbService);
+
+          await Future.doWhile(() => !sut.loading);
+
+          await sut.getDataNumeric(log);
+
+          verifyNever(() => mockDbService.getLogValuesNumeric(log));
         },
       );
     },

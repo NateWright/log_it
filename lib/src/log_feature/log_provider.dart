@@ -47,36 +47,28 @@ class LogProvider extends ChangeNotifier {
     }
   }
 
-  // Log getLog(int id) {
-  //   return _items.singleWhere((element) => element.id == id);
-  // }
-
-  bool hasTitle(String title) {
-    if (_items.values.any((element) => element.title == title)) {
-      return true;
+  Future<void> addDataNumeric(Log log, Numeric numeric) async {
+    if (!_items.containsKey(log.id)) {
+      return;
     }
-    return false;
+    return dbService.insertLogValueNumeric(log, numeric).then(
+          (value) => notifyListeners(),
+        );
   }
 
-  void addDataNumeric(Log log, Numeric numeric) {
-    final f = dbService.insertLogValueNumeric(
-      log,
-      numeric,
-    );
-    f.then(
-      (value) => notifyListeners(),
-    );
-    notifyListeners();
+  Future<void> deleteDataNumeric(Log log, List<Numeric> vals) async {
+    if (!_items.containsKey(log.id)) {
+      return;
+    }
+    return dbService.deleteLogValuesNumeric(log, vals).then(
+          (value) => notifyListeners(),
+        );
   }
 
-  void deleteDataNumeric(Log log, List<Numeric> vals) {
-    final f = dbService.deleteLogValuesNumeric(log, vals);
-    f.then(
-      (value) => notifyListeners(),
-    );
-  }
-
-  Future<List<Numeric>> getDataNumeric(Log log) {
+  Future<List<Numeric>> getDataNumeric(Log log) async {
+    if (!_items.containsKey(log.id)) {
+      return <Numeric>[];
+    }
     return dbService.getLogValuesNumeric(log);
   }
 
