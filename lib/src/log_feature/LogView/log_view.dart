@@ -72,7 +72,10 @@ class LogView extends StatelessWidget {
                       );
                     },
                     leadingIcon: const Icon(Icons.settings),
-                    child: const Text('EDIT'),
+                    child: const Padding(
+                      padding: EdgeInsets.fromLTRB(0, 12.0, 12, 12),
+                      child: Text('EDIT'),
+                    ),
                   ),
                   _DeleteWidget(
                     log: log,
@@ -208,7 +211,10 @@ class _DeleteWidget extends StatelessWidget {
           },
         );
       },
-      child: const Text('Delete'),
+      child: const Padding(
+        padding: EdgeInsets.fromLTRB(0, 12.0, 12, 12),
+        child: Text('Delete'),
+      ),
     );
   }
 }
