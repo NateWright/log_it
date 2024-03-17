@@ -5,11 +5,11 @@ import 'package:log_it/src/components/form_time_picker.dart';
 import 'package:log_it/src/log_feature/CreateForm/log_create_form.dart';
 import 'package:log_it/src/log_feature/LogView/log_data_view.dart';
 import 'package:log_it/src/log_feature/LogView/GraphView/graph_view.dart';
+import 'package:log_it/src/log_feature/graph_settings.dart';
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/log_provider.dart';
 import 'package:log_it/src/log_feature/numeric.dart';
 import 'package:provider/provider.dart';
-import 'package:fl_chart/fl_chart.dart';
 
 enum SettingsOptions { delete }
 
@@ -90,8 +90,8 @@ class LogView extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             children: [
               _GraphWidget(
-                log: log,
-                logProvider: logProvider,
+                dataPoints: logProvider.getDataNumeric(log),
+                settings: logProvider.logGetSettings(log),
               ),
               Divider(
                 color: theme.colorScheme.secondary,
@@ -156,41 +156,25 @@ class LogView extends StatelessWidget {
 class _GraphWidget extends StatelessWidget {
   const _GraphWidget({
     super.key,
-    required this.log,
-    required this.logProvider,
+    required this.dataPoints,
+    required this.settings,
   });
 
-  final Log log;
-  final LogProvider logProvider;
+  final Future<List<Numeric>> dataPoints;
+  final Future<GraphSettings> settings;
 
   @override
   Widget build(BuildContext context) {
-    final future = logProvider.getDataNumeric(log);
-    return SizedBox(
-      width: 400,
-      height: 300,
-      child: FutureBuilder(
-        future: future,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const CircularProgressIndicator();
-          }
-          return LineChart(
-            LineChartData(
-              lineBarsData: [
-                LineChartBarData(
-                  isCurved: true,
-                  barWidth: 3,
-                  spots: [
-                    for (final (index, n) in snapshot.data!.indexed)
-                      FlSpot(index.toDouble(), n.data),
-                  ],
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+    return FutureBuilder(
+      future: Future.wait([dataPoints, settings]),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final d = snapshot.data![0] as List<Numeric>;
+        final g = snapshot.data![1] as GraphSettings;
+        return GraphWidget(dataPoints: d, graphSettings: g);
+      },
     );
   }
 }

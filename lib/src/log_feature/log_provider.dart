@@ -1,9 +1,12 @@
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:log_it/src/db_service/db_service.dart';
+import 'package:log_it/src/log_feature/graph_settings.dart';
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/numeric.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LogProvider extends ChangeNotifier {
   /// Internal, private state of the cart.
@@ -11,6 +14,7 @@ class LogProvider extends ChangeNotifier {
   DbService dbService;
   bool loading = false;
   static int notificationLog = 0;
+  static final preferences = SharedPreferences.getInstance();
 
   LogProvider(this.dbService) {
     _updateLogs().then((value) {
@@ -45,6 +49,29 @@ class LogProvider extends ChangeNotifier {
       Future<void> ret = dbService.deleteLog(log);
       return ret.then((_) => _updateLogs());
     }
+  }
+
+  Future<GraphSettings> logGetSettings(Log log) async {
+    final prefs = await LogProvider.preferences;
+
+    final settingsString = prefs.getString(log.dbName);
+
+    if (settingsString == null) {
+      final initSettings = GraphSettings();
+      prefs.setString(log.dbName, jsonEncode(initSettings));
+      return initSettings;
+    } else {
+      final settingsMap = jsonDecode(settingsString) as Map<String, dynamic>;
+      return GraphSettings.fromJson(settingsMap);
+    }
+  }
+
+  logUpdateSettings(Log log, GraphSettings settings) async {
+    final prefs = await LogProvider.preferences;
+
+    return prefs
+        .setString(log.dbName, jsonEncode(settings))
+        .then((value) => notifyListeners());
   }
 
   Future<void> addDataNumeric(Log log, Numeric numeric) async {
