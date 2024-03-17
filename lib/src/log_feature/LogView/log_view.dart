@@ -4,7 +4,7 @@ import 'package:log_it/src/components/form_date_picker.dart';
 import 'package:log_it/src/components/form_time_picker.dart';
 import 'package:log_it/src/log_feature/CreateForm/log_create_form.dart';
 import 'package:log_it/src/log_feature/LogView/log_data_view.dart';
-import 'package:log_it/src/log_feature/LogView/graph_view.dart';
+import 'package:log_it/src/log_feature/LogView/GraphView/graph_view.dart';
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/log_provider.dart';
 import 'package:log_it/src/log_feature/numeric.dart';
@@ -34,11 +34,12 @@ class LogView extends StatelessWidget {
     }
     final theme = Theme.of(context);
     return Consumer<LogProvider>(
-      builder: (context, value, child) {
-        Log? log = value.getLog(id);
-        if (log == null) {
+      builder: (context, logProvider, child) {
+        Log? l = logProvider.getLog(id);
+        if (l == null) {
           return const Center(child: CircularProgressIndicator());
         }
+        Log log = l;
         return Scaffold(
           appBar: AppBar(
             elevation: 4,
@@ -85,62 +86,52 @@ class LogView extends StatelessWidget {
               ),
             ],
           ),
-          body: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          body: ListView(
+            padding: const EdgeInsets.all(8.0),
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(
-                      width: 400,
-                      height: 300,
-                      child: FutureBuilder(
-                        future: value.getDataNumeric(log),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState !=
-                              ConnectionState.done) {
-                            return const CircularProgressIndicator();
-                          }
-                          return LineChart(
-                            LineChartData(
-                              lineBarsData: [
-                                LineChartBarData(
-                                  isCurved: true,
-                                  barWidth: 3,
-                                  spots: [
-                                    for (final (index, n)
-                                        in snapshot.data!.indexed)
-                                      FlSpot(index.toDouble(), n.data),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      )),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => GraphView(log: log),
-                        ),
-                      );
-                    },
-                    child: const Text('View Graph'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LogDataView(log: log),
-                        ),
-                      );
-                    },
-                    child: const Text('View Data'),
-                  ),
-                ],
+              _GraphWidget(
+                log: log,
+                logProvider: logProvider,
+              ),
+              Divider(
+                color: theme.colorScheme.secondary,
+                // color: Colors.white,
+              ),
+              ListTile(
+                title: const Text('Modify Graph'),
+                subtitle: const Text('Change graph type and colors'),
+                trailing: Icon(
+                  Icons.navigate_next,
+                  size: theme.textTheme.displaySmall!.fontSize,
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => GraphView(log: log),
+                    ),
+                  );
+                },
+              ),
+              Divider(
+                color: theme.colorScheme.secondary,
+                // color: Colors.white,
+              ),
+              ListTile(
+                title: const Text('Raw Data'),
+                subtitle: const Text('View and delete data'),
+                trailing: Icon(
+                  Icons.navigate_next,
+                  size: theme.textTheme.displaySmall!.fontSize,
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LogDataView(log: log),
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -158,6 +149,48 @@ class LogView extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+class _GraphWidget extends StatelessWidget {
+  const _GraphWidget({
+    super.key,
+    required this.log,
+    required this.logProvider,
+  });
+
+  final Log log;
+  final LogProvider logProvider;
+
+  @override
+  Widget build(BuildContext context) {
+    final future = logProvider.getDataNumeric(log);
+    return SizedBox(
+      width: 400,
+      height: 300,
+      child: FutureBuilder(
+        future: future,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const CircularProgressIndicator();
+          }
+          return LineChart(
+            LineChartData(
+              lineBarsData: [
+                LineChartBarData(
+                  isCurved: true,
+                  barWidth: 3,
+                  spots: [
+                    for (final (index, n) in snapshot.data!.indexed)
+                      FlSpot(index.toDouble(), n.data),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }
