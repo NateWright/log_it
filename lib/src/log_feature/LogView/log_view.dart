@@ -155,7 +155,6 @@ class LogView extends StatelessWidget {
 
 class _GraphWidget extends StatelessWidget {
   const _GraphWidget({
-    super.key,
     required this.dataPoints,
     required this.settings,
   });
@@ -181,7 +180,6 @@ class _GraphWidget extends StatelessWidget {
 
 class _DeleteWidget extends StatelessWidget {
   const _DeleteWidget({
-    super.key,
     required this.log,
     required this.context,
   });
@@ -354,7 +352,9 @@ class _AddDataFormState extends State<AddDataForm> {
                         Provider.of<LogProvider>(context, listen: false)
                             .addDataNumeric(widget.log, numeric);
                         Navigator.pop(context);
-                      } catch (e) {}
+                      } catch (e) {
+                        // Couldn't parse int
+                      }
                     }
                   },
                   child: const Text('Add'),

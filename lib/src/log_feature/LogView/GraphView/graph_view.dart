@@ -244,6 +244,7 @@ class GraphWidget extends StatelessWidget {
   final GraphSettings graphSettings;
 
   const GraphWidget({
+    super.key,
     required this.dataPoints,
     required this.graphSettings,
   });

@@ -40,7 +40,7 @@ class Dashboard extends StatelessWidget {
                       '${Provider.of<LogProvider>(context, listen: false).items[0].id}',
                   dateTime: d);
             },
-            icon: Icon(Icons.plus_one),
+            icon: const Icon(Icons.plus_one),
           ),
           IconButton(
             icon: const Icon(Icons.settings),
