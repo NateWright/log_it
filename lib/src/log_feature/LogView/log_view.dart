@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:log_it/src/components/form_date_picker.dart';
-import 'package:log_it/src/components/form_time_picker.dart';
 import 'package:log_it/src/log_feature/CreateForm/log_create_form.dart';
-import 'package:log_it/src/log_feature/LogView/SlideshowView/slideshow_view.dart';
-import 'package:log_it/src/log_feature/LogView/log_data_view.dart';
-import 'package:log_it/src/log_feature/LogView/GraphView/graph_view.dart';
-import 'package:log_it/src/log_feature/graph_settings.dart';
+import 'package:log_it/src/log_feature/LogView/numeric/numeric_widgets.dart';
+import 'package:log_it/src/log_feature/LogView/picture/picture_widgets.dart';
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/log_provider.dart';
-import 'package:log_it/src/log_feature/numeric.dart';
 import 'package:provider/provider.dart';
 
 enum SettingsOptions { delete }
@@ -34,6 +28,7 @@ class LogView extends StatelessWidget {
       return const Text('Error');
     }
     final theme = Theme.of(context);
+
     return Consumer<LogProvider>(
       builder: (context, logProvider, child) {
         Log? l = logProvider.getLog(id);
@@ -41,6 +36,25 @@ class LogView extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
         Log log = l;
+        late NumericWidgets logWidgets;
+        switch (log.dataType) {
+          case DataType.number:
+            logWidgets = NumericWidgets(
+              context: context,
+              log: log,
+              logProvider: logProvider,
+            );
+            break;
+          case DataType.picture:
+            logWidgets = PictureWidgets(
+              context: context,
+              log: log,
+              logProvider: logProvider,
+            );
+            break;
+          default:
+            throw UnimplementedError();
+        }
         return Scaffold(
           appBar: AppBar(
             elevation: 4,
@@ -89,54 +103,7 @@ class LogView extends StatelessWidget {
           ),
           body: ListView(
             padding: const EdgeInsets.all(8.0),
-            children: [
-              log.dataType == DataType.number
-                  ? _GraphWidget(
-                      dataPoints: logProvider.getDataNumeric(log),
-                      settings: logProvider.logGetSettings(log),
-                    )
-                  : const Slideshow(),
-              Divider(
-                color: theme.colorScheme.secondary,
-                // color: Colors.white,
-              ),
-              ListTile(
-                title: const Text('Modify Graph'),
-                subtitle: const Text('Change graph type and colors'),
-                trailing: Icon(
-                  Icons.navigate_next,
-                  size: theme.textTheme.displaySmall!.fontSize,
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => GraphView(log: log),
-                    ),
-                  );
-                },
-              ),
-              Divider(
-                color: theme.colorScheme.secondary,
-                // color: Colors.white,
-              ),
-              ListTile(
-                title: const Text('Raw Data'),
-                subtitle: const Text('View and delete data'),
-                trailing: Icon(
-                  Icons.navigate_next,
-                  size: theme.textTheme.displaySmall!.fontSize,
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LogDataView(log: log),
-                    ),
-                  );
-                },
-              ),
-            ],
+            children: logWidgets.widgets(),
           ),
           floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
           floatingActionButton: FloatingActionButton(
@@ -144,38 +111,13 @@ class LogView extends StatelessWidget {
               Navigator.push(
                 context,
                 // Create the SelectionScreen in the next step.
-                MaterialPageRoute(builder: (context) => AddDataForm(log: log)),
+                MaterialPageRoute(builder: (context) => logWidgets.addData()),
               );
             },
             tooltip: 'Add new log',
             child: const Icon(Icons.add),
           ),
         );
-      },
-    );
-  }
-}
-
-class _GraphWidget extends StatelessWidget {
-  const _GraphWidget({
-    required this.dataPoints,
-    required this.settings,
-  });
-
-  final Future<List<Numeric>> dataPoints;
-  final Future<GraphSettings> settings;
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: Future.wait([dataPoints, settings]),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        final d = snapshot.data![0] as List<Numeric>;
-        final g = snapshot.data![1] as GraphSettings;
-        return GraphWidget(dataPoints: d, graphSettings: g);
       },
     );
   }
@@ -232,140 +174,6 @@ class _DeleteWidget extends StatelessWidget {
       child: const Padding(
         padding: EdgeInsets.fromLTRB(0, 12.0, 12, 12),
         child: Text('Delete'),
-      ),
-    );
-  }
-}
-
-class AddDataForm extends StatefulWidget {
-  final Log log;
-  const AddDataForm({
-    super.key,
-    required this.log,
-  });
-
-  @override
-  State<AddDataForm> createState() => _AddDataFormState();
-}
-
-class _AddDataFormState extends State<AddDataForm> {
-  final _formKey = GlobalKey<FormState>();
-
-  String input = '';
-  Numeric numeric = Numeric(date: DateTime.now(), data: 0);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 4,
-        shadowColor: theme.shadowColor,
-        title: Text(
-          'Enter Data',
-          style: theme.textTheme.headlineLarge,
-        ),
-        centerTitle: true,
-        // actions: [],
-      ),
-      body: Form(
-        key: _formKey,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Card(
-                elevation: 1,
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-                        child: TextFormField(
-                          decoration: const InputDecoration(
-                            filled: true,
-                            labelText: 'Data',
-                            hintText: '1.0',
-                          ),
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(
-                                RegExp(r'(^\d*\.?\d*)')),
-                          ],
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a value';
-                            }
-                            return null;
-                          },
-                          onChanged: (value) {
-                            setState(() {
-                              input = value;
-                            });
-                          },
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          FormDatePicker(
-                            initialDate: numeric.date,
-                            onChanged: (value) {
-                              numeric.date = DateTime(
-                                value.year,
-                                value.month,
-                                value.day,
-                                numeric.date.hour,
-                                numeric.date.minute,
-                                0,
-                                0,
-                              );
-                            },
-                          ),
-                          FormTimePicker(
-                              initialTime: TimeOfDay.fromDateTime(numeric.date),
-                              onChanged: (value) {
-                                numeric.date = DateTime(
-                                  numeric.date.year,
-                                  numeric.date.month,
-                                  numeric.date.day,
-                                  value.hour,
-                                  value.minute,
-                                  0,
-                                  0,
-                                );
-                              }),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Validate returns true if the form is valid, or false otherwise.
-                    if (_formKey.currentState!.validate()) {
-                      try {
-                        numeric.data = double.parse(input);
-                        Provider.of<LogProvider>(context, listen: false)
-                            .addDataNumeric(widget.log, numeric);
-                        Navigator.pop(context);
-                      } catch (e) {
-                        // Couldn't parse int
-                      }
-                    }
-                  },
-                  child: const Text('Add'),
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
