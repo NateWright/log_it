@@ -19,7 +19,7 @@ class GraphView extends StatefulWidget {
 class GraphViewState extends State<GraphView> {
   Future<List<Numeric>>? futureData;
   Future<GraphSettings>? futureGraphSettings;
-  late GraphSettings graphSettings;
+  GraphSettings? gSettings;
   late List<Numeric> dataPoints;
 
   @override
@@ -31,8 +31,9 @@ class GraphViewState extends State<GraphView> {
     return PopScope(
       canPop: true,
       onPopInvoked: (didPop) {
+        if (gSettings == null) return;
         Provider.of<LogProvider>(context, listen: false)
-            .logUpdateSettings(widget.log, graphSettings);
+            .logUpdateSettings(widget.log, gSettings!);
       },
       child: Scaffold(
         appBar: AppBar(
@@ -54,7 +55,8 @@ class GraphViewState extends State<GraphView> {
               return const Center(child: CircularProgressIndicator());
             }
             dataPoints = snapshot.data![0] as List<Numeric>;
-            graphSettings = snapshot.data![1] as GraphSettings;
+            gSettings = snapshot.data![1] as GraphSettings;
+            GraphSettings graphSettings = gSettings!;
             return ListView(
               children: [
                 GraphWidget(
