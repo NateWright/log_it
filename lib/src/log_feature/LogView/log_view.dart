@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:log_it/src/components/form_date_picker.dart';
 import 'package:log_it/src/components/form_time_picker.dart';
 import 'package:log_it/src/log_feature/CreateForm/log_create_form.dart';
+import 'package:log_it/src/log_feature/LogView/SlideshowView/slideshow_view.dart';
 import 'package:log_it/src/log_feature/LogView/log_data_view.dart';
 import 'package:log_it/src/log_feature/LogView/GraphView/graph_view.dart';
 import 'package:log_it/src/log_feature/graph_settings.dart';
@@ -89,10 +90,12 @@ class LogView extends StatelessWidget {
           body: ListView(
             padding: const EdgeInsets.all(8.0),
             children: [
-              _GraphWidget(
-                dataPoints: logProvider.getDataNumeric(log),
-                settings: logProvider.logGetSettings(log),
-              ),
+              log.dataType == DataType.number
+                  ? _GraphWidget(
+                      dataPoints: logProvider.getDataNumeric(log),
+                      settings: logProvider.logGetSettings(log),
+                    )
+                  : const Slideshow(),
               Divider(
                 color: theme.colorScheme.secondary,
                 // color: Colors.white,
