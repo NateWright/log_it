@@ -171,12 +171,14 @@ class _PhotoAddDataFormState extends State<PhotoAddDataForm> {
                           await Provider.of<LogProvider>(context, listen: false)
                               .addDataPhoto(widget.log, photo);
                       if (result == null) {
-                        Navigator.of(context).pop();
+                        if (mounted) Navigator.of(context).pop();
                       } else {
                         final snackBar = SnackBar(
                           content: Text(result),
                         );
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        }
                       }
                     }
                   },
