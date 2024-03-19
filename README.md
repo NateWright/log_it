@@ -5,7 +5,12 @@
 [![build-android](https://github.com/NateWright/log_it/actions/workflows/build-android.yml/badge.svg)](https://github.com/NateWright/log_it/actions/workflows/build-android.yml)
 
 
-### Setup Instructions
+## Setup Instructions
+### Requirements
+* Windows or Linux computer
+* git
+
+### Steps
 1. Install android studio with these instructions. [Download](https://developer.android.com/studio) [Install](https://developer.android.com/studio/install) 
 2. Create an Android Virtual Device with these [Instructions](https://developer.android.com/studio/run/managing-avds)
     * Use Android 14 and latest SDK.

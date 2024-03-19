@@ -1,9 +1,13 @@
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:log_it/src/db_service/db_service.dart';
+import 'package:log_it/src/log_feature/graph_settings.dart';
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/numeric.dart';
+import 'package:log_it/src/log_feature/photo.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LogProvider extends ChangeNotifier {
   /// Internal, private state of the cart.
@@ -11,6 +15,7 @@ class LogProvider extends ChangeNotifier {
   DbService dbService;
   bool loading = false;
   static int notificationLog = 0;
+  static final preferences = SharedPreferences.getInstance();
 
   LogProvider(this.dbService) {
     _updateLogs().then((value) {
@@ -47,37 +52,82 @@ class LogProvider extends ChangeNotifier {
     }
   }
 
-  // Log getLog(int id) {
-  //   return _items.singleWhere((element) => element.id == id);
-  // }
+  Future<GraphSettings> logGetSettings(Log log) async {
+    final prefs = await LogProvider.preferences;
 
-  bool hasTitle(String title) {
-    if (_items.values.any((element) => element.title == title)) {
-      return true;
+    final settingsString = prefs.getString(log.dbName);
+
+    if (settingsString == null) {
+      final initSettings = GraphSettings();
+      prefs.setString(log.dbName, jsonEncode(initSettings));
+      return initSettings;
+    } else {
+      final settingsMap = jsonDecode(settingsString) as Map<String, dynamic>;
+      return GraphSettings.fromJson(settingsMap);
     }
-    return false;
   }
 
-  void addDataNumeric(Log log, Numeric numeric) {
-    final f = dbService.insertLogValueNumeric(
-      log,
-      numeric,
-    );
-    f.then(
-      (value) => notifyListeners(),
-    );
-    notifyListeners();
+  logUpdateSettings(Log log, GraphSettings settings) async {
+    final prefs = await LogProvider.preferences;
+
+    return prefs
+        .setString(log.dbName, jsonEncode(settings))
+        .then((value) => notifyListeners());
   }
 
-  void deleteDataNumeric(Log log, List<Numeric> vals) {
-    final f = dbService.deleteLogValuesNumeric(log, vals);
-    f.then(
-      (value) => notifyListeners(),
-    );
+  // Numeric Operations
+  Future<void> addDataNumeric(Log log, Numeric numeric) async {
+    if (!_items.containsKey(log.id)) {
+      return;
+    }
+    return dbService.insertLogValueNumeric(log, numeric).then(
+          (value) => notifyListeners(),
+        );
   }
 
-  Future<List<Numeric>> getDataNumeric(Log log) {
+  Future<void> deleteDataNumeric(Log log, List<Numeric> vals) async {
+    if (!_items.containsKey(log.id)) {
+      return;
+    }
+    return dbService.deleteLogValuesNumeric(log, vals).then(
+          (value) => notifyListeners(),
+        );
+  }
+
+  Future<List<Numeric>> getDataNumeric(Log log) async {
+    if (!_items.containsKey(log.id)) {
+      return <Numeric>[];
+    }
     return dbService.getLogValuesNumeric(log);
+  }
+
+  // Photo Operations
+  Future<String?> addDataPhoto(Log log, Photo photo) async {
+    if (!_items.containsKey(log.id)) {
+      return null;
+    }
+    return dbService.insertLogValuePhoto(log, photo).then(
+      (value) {
+        notifyListeners();
+        return null;
+      },
+    );
+  }
+
+  Future<void> deleteDataPhoto(Log log, List<Photo> vals) async {
+    if (!_items.containsKey(log.id)) {
+      return;
+    }
+    return dbService.deleteLogValuesPhoto(log, vals).then(
+          (value) => notifyListeners(),
+        );
+  }
+
+  Future<List<Photo>> getDataPhoto(Log log) async {
+    if (!_items.containsKey(log.id)) {
+      return <Photo>[];
+    }
+    return dbService.getLogValuesPhoto(log);
   }
 
   Future<void> _updateLogs() {

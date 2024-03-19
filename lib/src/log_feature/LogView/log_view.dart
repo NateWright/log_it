@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:log_it/src/components/form_date_picker.dart';
-import 'package:log_it/src/components/form_time_picker.dart';
 import 'package:log_it/src/log_feature/CreateForm/log_create_form.dart';
-import 'package:log_it/src/log_feature/LogView/log_data_view.dart';
-import 'package:log_it/src/log_feature/LogView/graph_view.dart';
+import 'package:log_it/src/log_feature/LogView/numeric/numeric_widgets.dart';
+import 'package:log_it/src/log_feature/LogView/picture/picture_widgets.dart';
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/log_provider.dart';
-import 'package:log_it/src/log_feature/numeric.dart';
 import 'package:provider/provider.dart';
-import 'package:fl_chart/fl_chart.dart';
 
 enum SettingsOptions { delete }
 
@@ -33,11 +28,32 @@ class LogView extends StatelessWidget {
       return const Text('Error');
     }
     final theme = Theme.of(context);
+
     return Consumer<LogProvider>(
-      builder: (context, value, child) {
-        Log? log = value.getLog(id);
-        if (log == null) {
+      builder: (context, logProvider, child) {
+        Log? l = logProvider.getLog(id);
+        if (l == null) {
           return const Center(child: CircularProgressIndicator());
+        }
+        Log log = l;
+        late NumericWidgets logWidgets;
+        switch (log.dataType) {
+          case DataType.number:
+            logWidgets = NumericWidgets(
+              context: context,
+              log: log,
+              logProvider: logProvider,
+            );
+            break;
+          case DataType.picture:
+            logWidgets = PictureWidgets(
+              context: context,
+              log: log,
+              logProvider: logProvider,
+            );
+            break;
+          default:
+            throw UnimplementedError();
         }
         return Scaffold(
           appBar: AppBar(
@@ -72,7 +88,10 @@ class LogView extends StatelessWidget {
                       );
                     },
                     leadingIcon: const Icon(Icons.settings),
-                    child: const Text('EDIT'),
+                    child: const Padding(
+                      padding: EdgeInsets.fromLTRB(0, 12.0, 12, 12),
+                      child: Text('EDIT'),
+                    ),
                   ),
                   _DeleteWidget(
                     log: log,
@@ -82,64 +101,9 @@ class LogView extends StatelessWidget {
               ),
             ],
           ),
-          body: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(
-                      width: 400,
-                      height: 300,
-                      child: FutureBuilder(
-                        future: value.getDataNumeric(log),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState !=
-                              ConnectionState.done) {
-                            return const CircularProgressIndicator();
-                          }
-                          return LineChart(
-                            LineChartData(
-                              lineBarsData: [
-                                LineChartBarData(
-                                  isCurved: true,
-                                  barWidth: 3,
-                                  spots: [
-                                    for (final (index, n)
-                                        in snapshot.data!.indexed)
-                                      FlSpot(index.toDouble(), n.data),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      )),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => GraphView(log: log),
-                        ),
-                      );
-                    },
-                    child: const Text('View Graph'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LogDataView(log: log),
-                        ),
-                      );
-                    },
-                    child: const Text('View Data'),
-                  ),
-                ],
-              ),
-            ],
+          body: ListView(
+            padding: const EdgeInsets.all(8.0),
+            children: logWidgets.widgets(),
           ),
           floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
           floatingActionButton: FloatingActionButton(
@@ -147,7 +111,7 @@ class LogView extends StatelessWidget {
               Navigator.push(
                 context,
                 // Create the SelectionScreen in the next step.
-                MaterialPageRoute(builder: (context) => AddDataForm(log: log)),
+                MaterialPageRoute(builder: (context) => logWidgets.addData()),
               );
             },
             tooltip: 'Add new log',
@@ -161,7 +125,6 @@ class LogView extends StatelessWidget {
 
 class _DeleteWidget extends StatelessWidget {
   const _DeleteWidget({
-    super.key,
     required this.log,
     required this.context,
   });
@@ -208,138 +171,9 @@ class _DeleteWidget extends StatelessWidget {
           },
         );
       },
-      child: const Text('Delete'),
-    );
-  }
-}
-
-class AddDataForm extends StatefulWidget {
-  final Log log;
-  const AddDataForm({
-    super.key,
-    required this.log,
-  });
-
-  @override
-  State<AddDataForm> createState() => _AddDataFormState();
-}
-
-class _AddDataFormState extends State<AddDataForm> {
-  final _formKey = GlobalKey<FormState>();
-
-  String input = '';
-  Numeric numeric = Numeric(date: DateTime.now(), data: 0);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 4,
-        shadowColor: theme.shadowColor,
-        title: Text(
-          'Enter Data',
-          style: theme.textTheme.headlineLarge,
-        ),
-        centerTitle: true,
-        // actions: [],
-      ),
-      body: Form(
-        key: _formKey,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Card(
-                elevation: 1,
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-                        child: TextFormField(
-                          decoration: const InputDecoration(
-                            filled: true,
-                            labelText: 'Data',
-                            hintText: '1.0',
-                          ),
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(
-                                RegExp(r'(^\d*\.?\d*)')),
-                          ],
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a value';
-                            }
-                            return null;
-                          },
-                          onChanged: (value) {
-                            setState(() {
-                              input = value;
-                            });
-                          },
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          FormDatePicker(
-                            initialDate: numeric.date,
-                            onChanged: (value) {
-                              numeric.date = DateTime(
-                                value.year,
-                                value.month,
-                                value.day,
-                                numeric.date.hour,
-                                numeric.date.minute,
-                                0,
-                                0,
-                              );
-                            },
-                          ),
-                          FormTimePicker(
-                              initialTime: TimeOfDay.fromDateTime(numeric.date),
-                              onChanged: (value) {
-                                numeric.date = DateTime(
-                                  numeric.date.year,
-                                  numeric.date.month,
-                                  numeric.date.day,
-                                  value.hour,
-                                  value.minute,
-                                  0,
-                                  0,
-                                );
-                              }),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Validate returns true if the form is valid, or false otherwise.
-                    if (_formKey.currentState!.validate()) {
-                      try {
-                        numeric.data = double.parse(input);
-                        Provider.of<LogProvider>(context, listen: false)
-                            .addDataNumeric(widget.log, numeric);
-                        Navigator.pop(context);
-                      } catch (e) {}
-                    }
-                  },
-                  child: const Text('Add'),
-                ),
-              ),
-            ],
-          ),
-        ),
+      child: const Padding(
+        padding: EdgeInsets.fromLTRB(0, 12.0, 12, 12),
+        child: Text('Delete'),
       ),
     );
   }
