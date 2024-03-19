@@ -7,6 +7,7 @@ import 'package:log_it/src/components/form_date_picker.dart';
 import 'package:log_it/src/components/form_time_picker.dart';
 import 'package:log_it/src/log_feature/LogView/picture/SlideshowView/slideshow_view.dart';
 import 'package:log_it/src/log_feature/LogView/numeric/numeric_widgets.dart';
+import 'package:log_it/src/log_feature/LogView/picture/picture_raw_data_view.dart';
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/log_provider.dart';
 import 'package:log_it/src/log_feature/photo.dart';
@@ -52,8 +53,7 @@ class PictureWidgets implements NumericWidgets {
           Navigator.push(
             _context,
             MaterialPageRoute(
-              builder: (context) => throw UnimplementedError(),
-              // builder: (context) => PictureDataView(log: _log),
+              builder: (context) => PictureRawDataView(log: _log),
             ),
           );
         },

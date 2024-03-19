@@ -156,7 +156,6 @@ class DbService {
     final ext = p.extension(photo.data);
     var outputDir =
         await Directory('${dir.path}/${log.dbName}').create(recursive: true);
-    print('${outputDir.path}/image$id$ext');
     await File(photo.data).copy('${outputDir.path}/image$id$ext');
 
     photo.data = 'image$id$ext';
@@ -170,7 +169,14 @@ class DbService {
   Future<void> deleteLogValuesPhoto(Log log, List<Photo> photos) async {
     final db = await database;
 
+    final appDir = await getApplicationDocumentsDirectory();
+    final dir =
+        await Directory('${appDir.path}/${log.dbName}').create(recursive: true);
     for (final val in photos) {
+      final file = File('${dir.path}/${val.data}');
+      if (await file.exists()) {
+        await file.delete();
+      }
       await db.delete(
         log.dbName,
         where: 'date = ?',
