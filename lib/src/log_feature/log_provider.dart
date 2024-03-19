@@ -92,3 +92,20 @@ class LogProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
+
+// Function to convert TimeInterval to Duration
+Duration timeIntervalToDuration(TimeInterval interval) {
+  switch (interval.unit) {
+    case TimeIntervalUnits.years:
+      return Duration(days: interval.interval * 365);
+    case TimeIntervalUnits.months:
+      return Duration(days: interval.interval * 30);
+    case TimeIntervalUnits.days:
+      return Duration(days: interval.interval);
+    case TimeIntervalUnits.hours:
+      return Duration(hours: interval.interval);
+    case TimeIntervalUnits.minutes:
+      return Duration(minutes: interval.interval);
+    
+  }
+}

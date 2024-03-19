@@ -3,7 +3,6 @@ import 'package:log_it/src/log_feature/CreateForm/log_create_form.dart';
 import 'package:log_it/src/log_feature/log_provider.dart';
 import 'package:log_it/src/notifcation_service/notification_service.dart';
 import 'package:provider/provider.dart';
-
 import '../../settings/settings_view.dart';
 import 'dashboard_item.dart';
 
@@ -50,6 +49,7 @@ class Dashboard extends StatelessWidget {
               // background, the navigation stack is restored.
               Navigator.restorablePushNamed(context, SettingsView.routeName);
             },
+            
           ),
         ],
       ),
