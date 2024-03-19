@@ -6,6 +6,7 @@ import 'package:log_it/src/db_service/db_service.dart';
 import 'package:log_it/src/log_feature/graph_settings.dart';
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/numeric.dart';
+import 'package:log_it/src/log_feature/photo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LogProvider extends ChangeNotifier {
@@ -74,6 +75,7 @@ class LogProvider extends ChangeNotifier {
         .then((value) => notifyListeners());
   }
 
+  // Numeric Operations
   Future<void> addDataNumeric(Log log, Numeric numeric) async {
     if (!_items.containsKey(log.id)) {
       return;
@@ -97,6 +99,35 @@ class LogProvider extends ChangeNotifier {
       return <Numeric>[];
     }
     return dbService.getLogValuesNumeric(log);
+  }
+
+  // Photo Operations
+  Future<String?> addDataPhoto(Log log, Photo photo) async {
+    if (!_items.containsKey(log.id)) {
+      return null;
+    }
+    return dbService.insertLogValuePhoto(log, photo).then(
+      (value) {
+        notifyListeners();
+        return null;
+      },
+    );
+  }
+
+  Future<void> deleteDataPhoto(Log log, List<Photo> vals) async {
+    if (!_items.containsKey(log.id)) {
+      return;
+    }
+    return dbService.deleteLogValuesPhoto(log, vals).then(
+          (value) => notifyListeners(),
+        );
+  }
+
+  Future<List<Photo>> getDataPhoto(Log log) async {
+    if (!_items.containsKey(log.id)) {
+      return <Photo>[];
+    }
+    return dbService.getLogValuesPhoto(log);
   }
 
   Future<void> _updateLogs() {

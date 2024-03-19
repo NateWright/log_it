@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io' as io;
+import 'dart:io';
 
+import 'package:log_it/src/log_feature/photo.dart';
 import 'package:path/path.dart' as p;
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/numeric.dart';
@@ -64,9 +66,17 @@ class DbService {
     );
 
     // Initialize table to store data:value pairs
-    if (log.dataType == DataType.number) {
-      db.execute(
-          'CREATE TABLE ${log.dbName}(date TEXT PRIMARY KEY, data REAL);');
+    switch (log.dataType) {
+      case DataType.number:
+        db.execute(
+            'CREATE TABLE ${log.dbName}(date TEXT PRIMARY KEY, data REAL);');
+        break;
+      case DataType.picture:
+        db.execute(
+            'CREATE TABLE ${log.dbName}(date TEXT PRIMARY KEY, data TEXT);');
+        break;
+      default:
+        throw UnimplementedError("DB could not be created");
     }
   }
 
@@ -98,6 +108,7 @@ class DbService {
     ];
   }
 
+  // Numeric Operations
   Future<void> insertLogValueNumeric(Log log, Numeric numeric) async {
     final db = await database;
 
@@ -128,6 +139,54 @@ class DbService {
 
     return [
       for (final val in values) Numeric.fromMap(val),
+    ];
+  }
+
+  // Picture Operations
+  Future<void> insertLogValuePhoto(Log log, Photo photo) async {
+    final db = await database;
+
+    final id = await db.insert(
+      log.dbName,
+      photo.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+
+    final dir = await getApplicationDocumentsDirectory();
+    final ext = p.extension(photo.data);
+    var outputDir =
+        await Directory('${dir.path}/${log.dbName}').create(recursive: true);
+    print('${outputDir.path}/image$id$ext');
+    await File(photo.data).copy('${outputDir.path}/image$id$ext');
+
+    photo.data = 'image$id$ext';
+    await db.insert(
+      log.dbName,
+      photo.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> deleteLogValuesPhoto(Log log, List<Photo> photos) async {
+    final db = await database;
+
+    for (final val in photos) {
+      await db.delete(
+        log.dbName,
+        where: 'date = ?',
+        whereArgs: [val.date.toString()],
+      );
+    }
+  }
+
+  Future<List<Photo>> getLogValuesPhoto(Log log) async {
+    final db = await database;
+
+    List<Map<String, Object?>> values =
+        await db.query(log.dbName, orderBy: 'date');
+
+    return [
+      for (final val in values) Photo.fromMap(val),
     ];
   }
 }
