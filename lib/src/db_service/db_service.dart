@@ -56,7 +56,7 @@ class DbService {
     );
   }
 
-  Future<void> insertLog(Log log) async {
+  Future<int> insertLog(Log log) async {
     final db = await database;
 
     log.id = await db.insert(
@@ -78,6 +78,7 @@ class DbService {
       default:
         throw UnimplementedError("DB could not be created");
     }
+    return log.id;
   }
 
   Future<int> updateLog(Log log) async {

@@ -34,15 +34,18 @@ class LogProvider extends ChangeNotifier {
   }
 
   /// Adds new [log] to Database. Returns null on success and
-  Future<void> add(Log log) {
-    Future<void> ret;
+  Future<int> add(Log log) {
+    Future<int> ret;
     if (log.id == -1) {
       ret = dbService.insertLog(log);
     } else {
       ret = dbService.updateLog(log);
     }
 
-    return ret.then((_) => _updateLogs());
+    return ret.then((id) {
+      _updateLogs();
+      return id;
+    });
   }
 
   Future<void> delete(Log log) async {
@@ -156,6 +159,5 @@ Duration timeIntervalToDuration(TimeInterval interval) {
       return Duration(hours: interval.interval);
     case TimeIntervalUnits.minutes:
       return Duration(minutes: interval.interval);
-    
   }
 }
