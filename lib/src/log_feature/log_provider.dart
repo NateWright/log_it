@@ -19,6 +19,10 @@ class LogProvider extends ChangeNotifier {
 
   LogProvider(this.dbService) {
     _updateLogs().then((value) {
+      // Check and delete old notifications
+
+      // Insert notification so all have 5
+
       loading = false;
     });
   }

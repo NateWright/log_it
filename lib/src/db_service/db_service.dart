@@ -3,6 +3,7 @@ import 'dart:io' as io;
 import 'dart:io';
 
 import 'package:log_it/src/log_feature/photo.dart';
+import 'package:log_it/src/notifcation_service/notification.dart';
 import 'package:path/path.dart' as p;
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/numeric.dart';
@@ -48,12 +49,45 @@ class DbService {
     return openDatabase(
       _path,
       onCreate: (database, version) async {
-        await database.execute(
-          'CREATE TABLE logs(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, description TEXT, dataType INTEGER, unit TEXT, hasNotifications INTEGER, dateRangeBegin TEXT, dateRangeEnd TEXT, startTimeHour INTEGER, startTimeMinute INTEGER, intervalInterval INTEGER, intervalUnit INTEGER)',
-        );
+        const String createLogs =
+            'CREATE TABLE logs(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, description TEXT, dataType INTEGER, unit TEXT, hasNotifications INTEGER, dateRangeBegin TEXT, dateRangeEnd TEXT, startTimeHour INTEGER, startTimeMinute INTEGER, intervalInterval INTEGER, intervalUnit INTEGER);';
+        const String createNotifications =
+            'CREATE TABLE notifications(id INTEGER PRIMARY KEY AUTOINCREMENT, log_id INTEGER, date TEXT);';
+        await database.execute('$createLogs $createNotifications');
       },
       version: 1,
     );
+  }
+
+  Future<int> insertNotification(LogNotification notification) async {
+    final db = await database;
+
+    notification.id = await db.insert(
+      'notifications',
+      notification.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+    return notification.id;
+  }
+
+  Future<void> deleteNotification(LogNotification notification) async {
+    final db = await database;
+
+    await db.delete(
+      'notifications',
+      where: 'id = ?',
+      whereArgs: [notification.id],
+    );
+    return;
+  }
+
+  Future<List<LogNotification>> getNotifications() async {
+    final db = await database;
+    final List<Map<String, Object?>> maps = await db.query('notifications');
+
+    return [
+      for (final m in maps) LogNotification.fromMap(m),
+    ];
   }
 
   Future<int> insertLog(Log log) async {
