@@ -38,18 +38,16 @@ class LogProvider extends ChangeNotifier {
   }
 
   /// Adds new [log] to Database. Returns null on success and
-  Future<int> add(Log log) {
-    Future<int> ret;
+  Future<int> add(Log log) async {
+    int ret;
     if (log.id == -1) {
-      ret = dbService.insertLog(log);
+      ret = await dbService.insertLog(log);
     } else {
-      ret = dbService.updateLog(log);
+      ret = await dbService.updateLog(log);
     }
 
-    return ret.then((id) {
-      _updateLogs();
-      return id;
-    });
+    await _updateLogs();
+    return ret;
   }
 
   Future<void> delete(Log log) async {
