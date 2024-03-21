@@ -7,6 +7,8 @@ import 'package:log_it/src/log_feature/graph_settings.dart';
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/numeric.dart';
 import 'package:log_it/src/log_feature/photo.dart';
+import 'package:log_it/src/notifcation_service/notification.dart';
+import 'package:log_it/src/notifcation_service/notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LogProvider extends ChangeNotifier {
@@ -18,15 +20,84 @@ class LogProvider extends ChangeNotifier {
   static final preferences = SharedPreferences.getInstance();
 
   LogProvider(this.dbService) {
-    _updateLogs().then((value) {
-      // Check and delete old notifications
-
-      // Insert notification so all have 5
-
+    _updateLogs().then((value) async {
       loading = false;
+      List<LogNotification> notificationList =
+          await dbService.getNotifications();
+      final now = DateTime.now();
+      // Check and delete old notifications
+      for (final n in notificationList) {
+        if (n.date.isBefore(now)) {
+          dbService.deleteNotification(n);
+        }
+      }
+      // Insert notification so all have 5
+      for (final log in _items.values) {
+        List<LogNotification> logNotificationList =
+            await dbService.getLogNotifications(log.id);
+        final numNotifications = logNotificationList.length;
+        if (numNotifications == 0) {
+          initializeLogNotification(log, now);
+        } else {
+          int initial = notificationList.first.date.microsecondsSinceEpoch;
+          for (var n in notificationList) {
+            if (n.date.microsecondsSinceEpoch > initial) {
+              initial = n.date.microsecondsSinceEpoch;
+            }
+          }
+          for (var i = 0; i < 5 - numNotifications; i++) {
+            initial += log.interval.getDuration().inMicroseconds;
+            NotificationService().scheduleNotification(
+              title: log.title,
+              body: 'Enter data for your log',
+              payload: log.id.toString(),
+              dateTime: DateTime.fromMicrosecondsSinceEpoch(initial),
+            );
+            dbService.insertNotification(
+              LogNotification(
+                id: -1,
+                logID: log.id,
+                date: DateTime.fromMicrosecondsSinceEpoch(initial),
+              ),
+            );
+          }
+        }
+      }
     });
   }
 
+  void initializeLogNotification(Log log, DateTime now) {
+    final startDate = log.dateRange.start;
+    final startTime = log.startTime;
+    final start = DateTime(startDate.year, startDate.month, startDate.day,
+        startDate.hour, startTime.minute);
+    final notificationStart =
+        now.microsecondsSinceEpoch - start.microsecondsSinceEpoch;
+
+    int initial =
+        (notificationStart / log.interval.getDuration().inMicroseconds).ceil() +
+            start.microsecondsSinceEpoch;
+    for (var i = 0; i < 5; i++) {
+      NotificationService().scheduleNotification(
+        title: log.title,
+        body: 'Enter data for your log',
+        payload: log.id.toString(),
+        dateTime: DateTime.fromMicrosecondsSinceEpoch(initial),
+      );
+      dbService.insertNotification(
+        LogNotification(
+          id: -1,
+          logID: log.id,
+          date: DateTime.fromMicrosecondsSinceEpoch(initial),
+        ),
+      );
+      initial += log.interval.getDuration().inMicroseconds;
+    }
+  }
+
+  /*Future<void> deleteNotification (LogNotification noti) {
+
+  }*/
   /// An unmodifiable view of the items in the cart.
   UnmodifiableListView<Log> get items => UnmodifiableListView(_items.values);
 
@@ -42,6 +113,7 @@ class LogProvider extends ChangeNotifier {
     Future<int> ret;
     if (log.id == -1) {
       ret = dbService.insertLog(log);
+      initializeLogNotification(log, DateTime.now());
     } else {
       ret = dbService.updateLog(log);
     }
@@ -147,21 +219,5 @@ class LogProvider extends ChangeNotifier {
   void _setLogs(List<Log> values) {
     _items = {for (Log v in values) v.id: v};
     notifyListeners();
-  }
-}
-
-// Function to convert TimeInterval to Duration
-Duration timeIntervalToDuration(TimeInterval interval) {
-  switch (interval.unit) {
-    case TimeIntervalUnits.years:
-      return Duration(days: interval.interval * 365);
-    case TimeIntervalUnits.months:
-      return Duration(days: interval.interval * 30);
-    case TimeIntervalUnits.days:
-      return Duration(days: interval.interval);
-    case TimeIntervalUnits.hours:
-      return Duration(hours: interval.interval);
-    case TimeIntervalUnits.minutes:
-      return Duration(minutes: interval.interval);
   }
 }

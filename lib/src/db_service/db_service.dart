@@ -53,7 +53,8 @@ class DbService {
             'CREATE TABLE logs(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, description TEXT, dataType INTEGER, unit TEXT, hasNotifications INTEGER, dateRangeBegin TEXT, dateRangeEnd TEXT, startTimeHour INTEGER, startTimeMinute INTEGER, intervalInterval INTEGER, intervalUnit INTEGER);';
         const String createNotifications =
             'CREATE TABLE notifications(id INTEGER PRIMARY KEY AUTOINCREMENT, log_id INTEGER, date TEXT);';
-        await database.execute('$createLogs $createNotifications');
+        await database.execute(createLogs);
+        await database.execute(createNotifications);
       },
       version: 1,
     );
@@ -85,6 +86,18 @@ class DbService {
     final db = await database;
     final List<Map<String, Object?>> maps = await db.query('notifications');
 
+    return [
+      for (final m in maps) LogNotification.fromMap(m),
+    ];
+  }
+
+  Future<List<LogNotification>> getLogNotifications(int logID) async {
+    final db = await database;
+    final List<Map<String, Object?>> maps = await db.query(
+      'notifications',
+      where: 'log_id = ?',
+      whereArgs: [logID],
+    );
     return [
       for (final m in maps) LogNotification.fromMap(m),
     ];

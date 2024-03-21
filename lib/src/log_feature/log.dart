@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum TimeIntervalUnits { minutes, hours, days, months, years }
+enum TimeIntervalUnits { minutes, hours, days }
 
 enum DataType { number, picture }
 
@@ -13,6 +13,17 @@ class TimeInterval {
   @override
   String toString() {
     return 'TimeInterval(interval: $interval, unit: ${unit.name})';
+  }
+
+  Duration getDuration() {
+    switch (unit) {
+      case TimeIntervalUnits.days:
+        return Duration(days: interval);
+      case TimeIntervalUnits.hours:
+        return Duration(hours: interval);
+      case TimeIntervalUnits.minutes:
+        return Duration(minutes: interval);
+    }
   }
 }
 
@@ -83,4 +94,14 @@ class Log {
   String toString() {
     return 'Log(title: $title, description: $description, dataType: ${dataType.name}, unit: $unit, hasNotifications: $hasNotifications, dateRange: $dateRange, startTime: $startTime, interval: $interval';
   }
+}
+
+DateTime setDateTime(DateTime dateTime, TimeOfDay timeOfDay) {
+  return DateTime(
+    dateTime.year,
+    dateTime.month,
+    dateTime.day,
+    timeOfDay.hour,
+    timeOfDay.minute,
+  );
 }

@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:log_it/src/log_feature/log_provider.dart';
 import 'package:log_it/src/log_feature/log.dart';
-import 'package:log_it/src/notifcation_service/notification_service.dart';
 import 'package:provider/provider.dart';
 
 class LogCreateFormPage extends StatelessWidget {
@@ -331,28 +330,6 @@ class LogCreateFormState extends State<LogCreateForm> {
                                   // );
                                   logs.add(log);
                                   Navigator.pop(context);
-                                  if (log.hasNotifications) {
-                                    //final difference = log.dateRange.end.difference(log.dateRange.start);
-                                    DateTime currentTime = setDateTime(log.dateRange.start, log.startTime);
-                                    // NotificationService().scheduleNotification(id: 0, title: log.title, body: "Enter new log data", payload: "payload", dateTime: currentTime);
-                                    // debugPrint('current time: $currentTime');
-                                    int notificationId = 0;
-                                    while (currentTime.isBefore(log.dateRange.end)) {
-                                      debugPrint('current time: $currentTime');
-                                      NotificationService().scheduleNotification
-                                      (
-                                        id: notificationId, 
-                                        title: log.title, 
-                                        body: "loop", 
-                                        payload: '${Provider.of<LogProvider>(context, listen: false).items[0].id}', 
-                                        dateTime: currentTime
-                                      );
-                                      currentTime = currentTime.add(timeIntervalToDuration(log.interval));
-                                      notificationId++;
-                                      // add code to add repeated notifications
-                                    }
-                                    
-                                  }
                                 }
                               },
                               child: const Text('Submit'),
@@ -491,13 +468,4 @@ class _FormTimePickerState extends State<_FormTimePicker> {
       ],
     );
   }
-}
-DateTime setDateTime (DateTime dateTime, TimeOfDay timeOfDay) {
-  return DateTime(
-  dateTime.year,
-    dateTime.month,
-    dateTime.day,
-    timeOfDay.hour,
-    timeOfDay.minute,
-  );
 }
