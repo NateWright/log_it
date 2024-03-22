@@ -7,8 +7,8 @@ import 'package:log_it/src/log_feature/graph_settings.dart';
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/numeric.dart';
 import 'package:log_it/src/log_feature/photo.dart';
-import 'package:log_it/src/notifcation_service/notification.dart';
-import 'package:log_it/src/notifcation_service/notification_service.dart';
+import 'package:log_it/src/notification_service/notification.dart';
+import 'package:log_it/src/notification_service/notification_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LogProvider extends ChangeNotifier {
@@ -47,26 +47,36 @@ class LogProvider extends ChangeNotifier {
           }
           for (var i = 0; i < 5 - numNotifications; i++) {
             initial += log.interval.getDuration().inMicroseconds;
-            NotificationService().scheduleNotification(
-              title: log.title,
-              body: 'Enter data for your log',
-              payload: log.id.toString(),
-              dateTime: DateTime.fromMicrosecondsSinceEpoch(initial),
-            );
-            dbService.insertNotification(
-              LogNotification(
-                id: -1,
-                logID: log.id,
-                date: DateTime.fromMicrosecondsSinceEpoch(initial),
-              ),
-            );
+            try {
+              int id = await dbService.insertNotification(
+                LogNotification(
+                  id: -1,
+                  logID: log.id,
+                  date: DateTime.fromMicrosecondsSinceEpoch(initial),
+                ),
+              );
+              print(id);
+              if (log.dateRange.start != log.dateRange.end &&
+                  DateTime.fromMicrosecondsSinceEpoch(initial)
+                      .isAfter(log.dateRange.end)) break;
+              await NotificationService().scheduleNotification(
+                id: id,
+                title: log.title,
+                body: 'Enter data for your log',
+                payload: log.id.toString(),
+                dateTime: DateTime.fromMicrosecondsSinceEpoch(initial),
+              );
+            } catch (e) {
+              // Notification error
+              print("notification error");
+            }
           }
         }
       }
     });
   }
 
-  void initializeLogNotification(Log log, DateTime now) {
+  void initializeLogNotification(Log log, DateTime now) async {
     final startDate = log.dateRange.start;
     final startTime = log.startTime;
     final start = DateTime(startDate.year, startDate.month, startDate.day,
@@ -78,19 +88,30 @@ class LogProvider extends ChangeNotifier {
         (notificationStart / log.interval.getDuration().inMicroseconds).ceil() +
             start.microsecondsSinceEpoch;
     for (var i = 0; i < 5; i++) {
-      NotificationService().scheduleNotification(
-        title: log.title,
-        body: 'Enter data for your log',
-        payload: log.id.toString(),
-        dateTime: DateTime.fromMicrosecondsSinceEpoch(initial),
-      );
-      dbService.insertNotification(
-        LogNotification(
-          id: -1,
-          logID: log.id,
-          date: DateTime.fromMicrosecondsSinceEpoch(initial),
-        ),
-      );
+      try {
+        int id = await dbService.insertNotification(
+          LogNotification(
+            id: -1,
+            logID: log.id,
+            date: DateTime.fromMicrosecondsSinceEpoch(initial),
+          ),
+        );
+        if (log.dateRange.start != log.dateRange.end &&
+            DateTime.fromMicrosecondsSinceEpoch(initial)
+                .isAfter(log.dateRange.end)) break;
+        print(id);
+        await NotificationService().scheduleNotification(
+          id: id,
+          title: log.title,
+          body: 'Enter data for your log',
+          payload: log.id.toString(),
+          dateTime: DateTime.fromMicrosecondsSinceEpoch(initial),
+        );
+      } catch (e) {
+        // Do not schedule
+        print("notification error");
+      }
+
       initial += log.interval.getDuration().inMicroseconds;
     }
   }

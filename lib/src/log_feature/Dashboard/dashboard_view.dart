@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:log_it/src/log_feature/CreateForm/log_create_form.dart';
 import 'package:log_it/src/log_feature/log_provider.dart';
-import 'package:log_it/src/notifcation_service/notification_service.dart';
 import 'package:provider/provider.dart';
 import '../../settings/settings_view.dart';
 import 'dashboard_item.dart';
@@ -28,20 +27,6 @@ class Dashboard extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () {
-              DateTime d = DateTime.now();
-              d = d.add(const Duration(seconds: 30));
-              debugPrint(d.toString());
-              NotificationService().scheduleNotification(
-                  title: 'Test scheduled',
-                  body: 'It worked',
-                  payload:
-                      '${Provider.of<LogProvider>(context, listen: false).items[0].id}',
-                  dateTime: d);
-            },
-            icon: const Icon(Icons.plus_one),
-          ),
-          IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
               // Navigate to the settings page. If the user leaves and returns
@@ -49,7 +34,6 @@ class Dashboard extends StatelessWidget {
               // background, the navigation stack is restored.
               Navigator.restorablePushNamed(context, SettingsView.routeName);
             },
-            
           ),
         ],
       ),

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:log_it/src/db_service/db_service.dart';
 import 'package:log_it/src/log_feature/log_provider.dart';
-import 'package:log_it/src/notifcation_service/notification_service.dart';
+import 'package:log_it/src/notification_service/notification_service.dart';
 import 'package:provider/provider.dart';
 
 import 'src/app.dart';

@@ -16,7 +16,7 @@ class LogNotification {
 
   Map<String, Object?> toMap() {
     return {
-      'id': id,
+      'id': id == -1 ? null : id,
       'log_id': logID,
       'date': date.toString(),
     };

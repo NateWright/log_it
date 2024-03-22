@@ -80,7 +80,7 @@ class NotificationService {
   }
 
   Future scheduleNotification({
-    int id = 0,
+    required int id,
     String? title,
     String? body,
     String? payload,
@@ -101,6 +101,7 @@ class NotificationService {
       payload: payload,
     );
   }
+
   void periodicNotification({
     int id = 0,
     String? title,
@@ -109,10 +110,11 @@ class NotificationService {
     required DateTime dateTime,
     required TimeInterval interval,
   }) async {
-    await _flutterLocalNotificationsPlugin.periodicallyShow(0, '$title',
-    '$body', RepeatInterval.everyMinute, notificationDetails(),
-    androidAllowWhileIdle: true);
+    await _flutterLocalNotificationsPlugin.periodicallyShow(
+        0, '$title', '$body', RepeatInterval.everyMinute, notificationDetails(),
+        androidAllowWhileIdle: true);
   }
+
   // Function that does something when notification is clicked
   void onDidReceiveNotificationResponse(
       NotificationResponse notificationResponse) async {

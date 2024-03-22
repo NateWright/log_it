@@ -3,7 +3,7 @@ import 'dart:io' as io;
 import 'dart:io';
 
 import 'package:log_it/src/log_feature/photo.dart';
-import 'package:log_it/src/notifcation_service/notification.dart';
+import 'package:log_it/src/notification_service/notification.dart';
 import 'package:path/path.dart' as p;
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/numeric.dart';
