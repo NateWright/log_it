@@ -88,6 +88,7 @@ class LogProvider extends ChangeNotifier {
   }
 
   void initializeLogNotification(Log log, DateTime now) async {
+    if (!log.hasNotifications) return;
     final startDate = log.dateRange.start;
     final startTime = log.startTime;
     final start = DateTime(startDate.year, startDate.month, startDate.day,
