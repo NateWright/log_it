@@ -61,6 +61,9 @@ class LogProvider extends ChangeNotifier {
     });
   }
 
+  // An unmodifiable view of the items in the cart.
+  UnmodifiableListView<Log> get items => UnmodifiableListView(_items.values);
+
   Future<bool> _scheduleNotification(Log log, int initial) async {
     int id = await dbService.insertNotification(
       LogNotification(
@@ -109,12 +112,6 @@ class LogProvider extends ChangeNotifier {
     }
   }
 
-  /*Future<void> deleteNotification (LogNotification noti) {
-
-  }*/
-  /// An unmodifiable view of the items in the cart.
-  UnmodifiableListView<Log> get items => UnmodifiableListView(_items.values);
-
   Log? getLog(int id) {
     if (!_items.containsKey(id)) {
       return null;
@@ -125,12 +122,15 @@ class LogProvider extends ChangeNotifier {
   /// Adds new [log] to Database. Returns null on success and
   Future<int> add(Log log) async {
     int ret;
+
     if (log.id == -1) {
       ret = await dbService.insertLog(log);
-      initializeLogNotification(log, DateTime.now());
     } else {
       ret = await dbService.updateLog(log);
+      await dbService.clearNotifications(log);
     }
+
+    initializeLogNotification(log, DateTime.now());
 
     await _updateLogs();
     return ret;

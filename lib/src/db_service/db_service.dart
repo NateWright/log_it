@@ -82,6 +82,15 @@ class DbService {
     return;
   }
 
+  Future<void> clearNotifications(Log log) async {
+    final db = await database;
+    await db.delete(
+      'notifications',
+      where: 'log_id = ?',
+      whereArgs: [log.id],
+    );
+  }
+
   Future<List<LogNotification>> getNotifications() async {
     final db = await database;
     final List<Map<String, Object?>> maps = await db.query('notifications');
