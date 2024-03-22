@@ -48,24 +48,10 @@ class LogProvider extends ChangeNotifier {
           for (var i = 0; i < 5 - numNotifications; i++) {
             initial += log.interval.getDuration().inMicroseconds;
             try {
-              int id = await dbService.insertNotification(
-                LogNotification(
-                  id: -1,
-                  logID: log.id,
-                  date: DateTime.fromMicrosecondsSinceEpoch(initial),
-                ),
-              );
-              print(id);
-              if (log.dateRange.start != log.dateRange.end &&
-                  DateTime.fromMicrosecondsSinceEpoch(initial)
-                      .isAfter(log.dateRange.end)) break;
-              await NotificationService().scheduleNotification(
-                id: id,
-                title: log.title,
-                body: 'Enter data for your log',
-                payload: log.id.toString(),
-                dateTime: DateTime.fromMicrosecondsSinceEpoch(initial),
-              );
+              final result = await _scheduleNotification(log, initial);
+              if (!result) {
+                break;
+              }
             } catch (e) {
               // Notification error
               print("notification error");
@@ -74,6 +60,30 @@ class LogProvider extends ChangeNotifier {
         }
       }
     });
+  }
+
+  Future<bool> _scheduleNotification(Log log, int initial) async {
+    int id = await dbService.insertNotification(
+      LogNotification(
+        id: -1,
+        logID: log.id,
+        date: DateTime.fromMicrosecondsSinceEpoch(initial),
+      ),
+    );
+    print(id);
+    if (log.dateRange.start != log.dateRange.end &&
+        DateTime.fromMicrosecondsSinceEpoch(initial)
+            .isAfter(log.dateRange.end)) {
+      return false;
+    }
+    await NotificationService().scheduleNotification(
+      id: id,
+      title: log.title,
+      body: 'Enter data for your log',
+      payload: log.id.toString(),
+      dateTime: DateTime.fromMicrosecondsSinceEpoch(initial),
+    );
+    return true;
   }
 
   void initializeLogNotification(Log log, DateTime now) async {
@@ -89,27 +99,12 @@ class LogProvider extends ChangeNotifier {
             start.microsecondsSinceEpoch;
     for (var i = 0; i < 5; i++) {
       try {
-        int id = await dbService.insertNotification(
-          LogNotification(
-            id: -1,
-            logID: log.id,
-            date: DateTime.fromMicrosecondsSinceEpoch(initial),
-          ),
-        );
-        if (log.dateRange.start != log.dateRange.end &&
-            DateTime.fromMicrosecondsSinceEpoch(initial)
-                .isAfter(log.dateRange.end)) break;
-        print(id);
-        await NotificationService().scheduleNotification(
-          id: id,
-          title: log.title,
-          body: 'Enter data for your log',
-          payload: log.id.toString(),
-          dateTime: DateTime.fromMicrosecondsSinceEpoch(initial),
-        );
+        final result = await _scheduleNotification(log, initial);
+        if (!result) {
+          break;
+        }
       } catch (e) {
         // Do not schedule
-        print("notification error");
       }
 
       initial += log.interval.getDuration().inMicroseconds;
