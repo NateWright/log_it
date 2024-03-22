@@ -53,16 +53,25 @@ class LogCreateFormState extends State<LogCreateForm> {
   // not a GlobalKey<MyCustomFormState>.
   final _formKey = GlobalKey<FormState>();
 
-  Log log = Log(
-    title: '',
-    description: '',
-    dataType: DataType.number,
-    unit: '',
-    hasNotifications: false,
-    dateRange: DateTimeRange(start: DateTime.now(), end: DateTime.now()),
-    startTime: TimeOfDay.now(),
-    interval: TimeInterval(1, TimeIntervalUnits.minutes),
-  );
+  late Log log;
+
+  @override
+  void initState() {
+    super.initState();
+
+    var time = DateTime.now();
+
+    log = Log(
+      title: '',
+      description: '',
+      dataType: DataType.number,
+      unit: '',
+      hasNotifications: false,
+      dateRange: DateTimeRange(start: time, end: time),
+      startTime: TimeOfDay.now(),
+      interval: TimeInterval(1, TimeIntervalUnits.minutes),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
