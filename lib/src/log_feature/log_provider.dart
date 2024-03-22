@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 
@@ -16,49 +17,57 @@ class LogProvider extends ChangeNotifier {
   Map<int, Log> _items = {};
   DbService dbService;
   bool loading = false;
+  late Timer timer;
   static int notificationLog = 0;
   static final preferences = SharedPreferences.getInstance();
 
   LogProvider(this.dbService) {
+    timer = Timer.periodic(
+      const Duration(minutes: 4),
+      (timer) => _cleanAndScheduleNotifications(),
+    );
     _updateLogs().then((value) async {
       loading = false;
-      List<LogNotification> notificationList =
-          await dbService.getNotifications();
-      final now = DateTime.now();
-      // Check and delete old notifications
-      for (final n in notificationList) {
-        if (n.date.isBefore(now)) {
-          dbService.deleteNotification(n);
-        }
-      }
-      // Insert notification so all have 5
-      for (final log in _items.values) {
-        List<LogNotification> logNotificationList =
-            await dbService.getLogNotifications(log.id);
-        final numNotifications = logNotificationList.length;
-        if (numNotifications == 0) {
-          initializeLogNotification(log, now);
-        } else {
-          int initial = notificationList.first.date.microsecondsSinceEpoch;
-          for (var n in notificationList) {
-            if (n.date.microsecondsSinceEpoch > initial) {
-              initial = n.date.microsecondsSinceEpoch;
-            }
-          }
-          for (var i = 0; i < 5 - numNotifications; i++) {
-            initial += log.interval.getDuration().inMicroseconds;
-            try {
-              final result = await _scheduleNotification(log, initial);
-              if (!result) {
-                break;
-              }
-            } catch (e) {
-              // Notification error
-            }
-          }
-        }
-      }
+      _cleanAndScheduleNotifications();
     });
+  }
+
+  Future<void> _cleanAndScheduleNotifications() async {
+    List<LogNotification> notificationList = await dbService.getNotifications();
+    final now = DateTime.now();
+    // Check and delete old notifications
+    for (final n in notificationList) {
+      if (n.date.isBefore(now)) {
+        dbService.deleteNotification(n);
+      }
+    }
+    // Insert notification so all have 5
+    for (final log in _items.values) {
+      List<LogNotification> logNotificationList =
+          await dbService.getLogNotifications(log.id);
+      final numNotifications = logNotificationList.length;
+      if (numNotifications == 0) {
+        initializeLogNotification(log, now);
+      } else {
+        int initial = notificationList.first.date.microsecondsSinceEpoch;
+        for (var n in notificationList) {
+          if (n.date.microsecondsSinceEpoch > initial) {
+            initial = n.date.microsecondsSinceEpoch;
+          }
+        }
+        for (var i = 0; i < 5 - numNotifications; i++) {
+          initial += log.interval.getDuration().inMicroseconds;
+          try {
+            final result = await _scheduleNotification(log, initial);
+            if (!result) {
+              break;
+            }
+          } catch (e) {
+            // Notification error
+          }
+        }
+      }
+    }
   }
 
   // An unmodifiable view of the items in the cart.
