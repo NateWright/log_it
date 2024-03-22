@@ -54,7 +54,6 @@ class LogProvider extends ChangeNotifier {
               }
             } catch (e) {
               // Notification error
-              print("notification error");
             }
           }
         }
@@ -70,7 +69,6 @@ class LogProvider extends ChangeNotifier {
         date: DateTime.fromMicrosecondsSinceEpoch(initial),
       ),
     );
-    print(id);
     if (log.dateRange.start != log.dateRange.end &&
         DateTime.fromMicrosecondsSinceEpoch(initial)
             .isAfter(log.dateRange.end)) {
