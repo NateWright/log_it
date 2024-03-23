@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:log_it/src/log_feature/log.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -100,19 +99,6 @@ class NotificationService {
           UILocalNotificationDateInterpretation.absoluteTime,
       payload: payload,
     );
-  }
-
-  void periodicNotification({
-    int id = 0,
-    String? title,
-    String? body,
-    String? payload,
-    required DateTime dateTime,
-    required TimeInterval interval,
-  }) async {
-    await _flutterLocalNotificationsPlugin.periodicallyShow(
-        0, '$title', '$body', RepeatInterval.everyMinute, notificationDetails(),
-        androidAllowWhileIdle: true);
   }
 
   // Function that does something when notification is clicked

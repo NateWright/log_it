@@ -33,47 +33,6 @@ class LogProvider extends ChangeNotifier {
     });
   }
 
-  Future<void> _cleanAndScheduleNotifications() async {
-    List<LogNotification> notificationList = await dbService.getNotifications();
-    final now = DateTime.now();
-    // Check and delete old notifications
-    for (final n in notificationList) {
-      if (n.date.isBefore(now)) {
-        dbService.deleteNotification(n);
-      }
-    }
-    // Insert notification so all have 5
-    for (final log in _items.values) {
-      if (!log.hasNotifications) continue;
-
-      List<LogNotification> logNotificationList =
-          await dbService.getLogNotifications(log.id);
-      final numNotifications = logNotificationList.length;
-      if (numNotifications == 0) {
-        initializeLogNotification(log, now);
-        continue;
-      }
-
-      int initial = notificationList.first.date.microsecondsSinceEpoch;
-      for (var n in notificationList) {
-        if (n.date.microsecondsSinceEpoch > initial) {
-          initial = n.date.microsecondsSinceEpoch;
-        }
-      }
-      for (var i = 0; i < 5 - numNotifications; i++) {
-        initial += log.interval.getDuration().inMicroseconds;
-        try {
-          final result = await _scheduleNotification(log, initial);
-          if (!result) {
-            break;
-          }
-        } catch (e) {
-          // Notification error
-        }
-      }
-    }
-  }
-
   // An unmodifiable view of the items in the cart.
   UnmodifiableListView<Log> get items => UnmodifiableListView(_items.values);
 
@@ -157,13 +116,13 @@ class LogProvider extends ChangeNotifier {
   }
 
   Future<GraphSettings> logGetSettings(Log log) async {
-    final prefs = await LogProvider.preferences;
+    final preferences = await LogProvider.preferences;
 
-    final settingsString = prefs.getString(log.dbName);
+    final settingsString = preferences.getString(log.dbName);
 
     if (settingsString == null) {
       final initSettings = GraphSettings();
-      prefs.setString(log.dbName, jsonEncode(initSettings));
+      preferences.setString(log.dbName, jsonEncode(initSettings));
       return initSettings;
     } else {
       final settingsMap = jsonDecode(settingsString) as Map<String, dynamic>;
@@ -172,9 +131,9 @@ class LogProvider extends ChangeNotifier {
   }
 
   logUpdateSettings(Log log, GraphSettings settings) async {
-    final prefs = await LogProvider.preferences;
+    final preferences = await LogProvider.preferences;
 
-    return prefs
+    return preferences
         .setString(log.dbName, jsonEncode(settings))
         .then((value) => notifyListeners());
   }
@@ -244,5 +203,46 @@ class LogProvider extends ChangeNotifier {
   void _setLogs(List<Log> values) {
     _items = {for (Log v in values) v.id: v};
     notifyListeners();
+  }
+
+  Future<void> _cleanAndScheduleNotifications() async {
+    List<LogNotification> notificationList = await dbService.getNotifications();
+    final now = DateTime.now();
+    // Check and delete old notifications
+    for (final n in notificationList) {
+      if (n.date.isBefore(now)) {
+        dbService.deleteNotification(n);
+      }
+    }
+    // Insert notification so all have 5
+    for (final log in _items.values) {
+      if (!log.hasNotifications) continue;
+
+      List<LogNotification> logNotificationList =
+          await dbService.getLogNotifications(log.id);
+      final numNotifications = logNotificationList.length;
+      if (numNotifications == 0) {
+        initializeLogNotification(log, now);
+        continue;
+      }
+
+      int initial = notificationList.first.date.microsecondsSinceEpoch;
+      for (var n in notificationList) {
+        if (n.date.microsecondsSinceEpoch > initial) {
+          initial = n.date.microsecondsSinceEpoch;
+        }
+      }
+      for (var i = 0; i < 5 - numNotifications; i++) {
+        initial += log.interval.getDuration().inMicroseconds;
+        try {
+          final result = await _scheduleNotification(log, initial);
+          if (!result) {
+            break;
+          }
+        } catch (e) {
+          // Notification error
+        }
+      }
+    }
   }
 }
