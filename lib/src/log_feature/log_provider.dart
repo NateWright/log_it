@@ -16,12 +16,13 @@ class LogProvider extends ChangeNotifier {
   /// Internal, private state of the cart.
   Map<int, Log> _items = {};
   DbService dbService;
+  NotificationService notificationService;
   bool loading = false;
   late Timer timer;
   static int notificationLog = 0;
   static final preferences = SharedPreferences.getInstance();
 
-  LogProvider(this.dbService) {
+  LogProvider({required this.dbService, required this.notificationService}) {
     timer = Timer.periodic(
       const Duration(minutes: 3),
       (timer) => _cleanAndScheduleNotifications(),
@@ -43,6 +44,8 @@ class LogProvider extends ChangeNotifier {
     }
     // Insert notification so all have 5
     for (final log in _items.values) {
+      if (!log.hasNotifications) continue;
+
       List<LogNotification> logNotificationList =
           await dbService.getLogNotifications(log.id);
       final numNotifications = logNotificationList.length;
@@ -87,7 +90,7 @@ class LogProvider extends ChangeNotifier {
             .isAfter(log.dateRange.end)) {
       return false;
     }
-    await NotificationService().scheduleNotification(
+    await notificationService.scheduleNotification(
       id: id,
       title: log.title,
       body: 'Enter data for your log',

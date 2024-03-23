@@ -23,6 +23,7 @@ void main() async {
   await NotificationService().setup();
 
   DbService dbService;
+  NotificationService notificationService = NotificationService();
   if (Platform.isLinux) {
     dbService = DbService.linux();
   } else {
@@ -34,8 +35,15 @@ void main() async {
   // SettingsView.
   runApp(MultiProvider(
     providers: [
-      ChangeNotifierProvider(create: (context) => LogProvider(dbService)),
-      Provider(create: (context) => NotificationService())
+      ChangeNotifierProvider(
+        create: (context) => LogProvider(
+          dbService: dbService,
+          notificationService: notificationService,
+        ),
+      ),
+      Provider(
+        create: (context) => NotificationService(),
+      )
     ],
     child: MyApp(settingsController: settingsController),
   ));

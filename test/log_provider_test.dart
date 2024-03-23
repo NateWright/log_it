@@ -3,14 +3,19 @@ import 'package:log_it/src/db_service/db_service.dart';
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/log_provider.dart';
 import 'package:log_it/src/log_feature/numeric.dart';
+import 'package:log_it/src/notification_service/notification.dart';
+import 'package:log_it/src/notification_service/notification_service.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class MockDbService extends Mock implements DbService {}
 
+class MockNotificationService extends Mock implements NotificationService {}
+
 void main() {
   late LogProvider sut;
   late MockDbService mockDbService;
+  late MockNotificationService mockNotificationService;
 
   mockGetLogs(List<Log> logs) =>
       when(() => mockDbService.getLogs()).thenAnswer((_) async => logs);
@@ -44,9 +49,18 @@ void main() {
       when(() => mockDbService.getLogValuesNumeric(log)).thenAnswer((_) async {
         return values;
       });
+  mockGetNotifications(List<LogNotification> n) =>
+      when(() => mockDbService.getNotifications()).thenAnswer((_) async {
+        return n;
+      });
+  mockClearNotifications(Log log) =>
+      when(() => mockDbService.clearNotifications(log)).thenAnswer((_) async {
+        return;
+      });
 
   setUp(() {
     mockDbService = MockDbService();
+    mockNotificationService = MockNotificationService();
   });
 
   group(
@@ -56,7 +70,11 @@ void main() {
         'initial values are correct',
         () {
           mockGetLogs([]);
-          sut = LogProvider(mockDbService);
+          mockGetNotifications([]);
+          sut = LogProvider(
+            dbService: mockDbService,
+            notificationService: mockNotificationService,
+          );
           expect(sut.items, []);
         },
       );
@@ -66,8 +84,11 @@ void main() {
         () async {
           Log log = createLog();
           mockGetLogs([log]);
-
-          sut = LogProvider(mockDbService);
+          mockGetNotifications([]);
+          sut = LogProvider(
+            dbService: mockDbService,
+            notificationService: mockNotificationService,
+          );
 
           await Future.doWhile(() => !sut.loading);
 
@@ -85,9 +106,13 @@ void main() {
         () {
           Log blank = createBlankLog();
           mockGetLogs([]);
+          mockGetNotifications([]);
           mockInsertLog(blank, 1);
           mockUpdateLog(blank, 1);
-          sut = LogProvider(mockDbService);
+          sut = LogProvider(
+            dbService: mockDbService,
+            notificationService: mockNotificationService,
+          );
 
           sut.add(blank);
 
@@ -101,10 +126,15 @@ void main() {
         () {
           Log log = createLog();
           mockGetLogs([]);
+          mockGetNotifications([]);
+          mockClearNotifications(log);
           mockInsertLog(log, 1);
           mockUpdateLog(log, 1);
 
-          sut = LogProvider(mockDbService);
+          sut = LogProvider(
+            dbService: mockDbService,
+            notificationService: mockNotificationService,
+          );
 
           sut.add(log);
           verify(() => mockDbService.updateLog(log)).called(1);
@@ -116,10 +146,14 @@ void main() {
         Log blank = createBlankLog();
 
         mockGetLogs([]);
+        mockGetNotifications([]);
         mockInsertLog(blank, 1);
         mockUpdateLog(blank, 1);
 
-        sut = LogProvider(mockDbService);
+        sut = LogProvider(
+          dbService: mockDbService,
+          notificationService: mockNotificationService,
+        );
 
         mockGetLogs([blank]);
 
@@ -138,6 +172,8 @@ void main() {
         () async {
           Log log = createBlankLog();
           mockGetLogs([]);
+          mockGetNotifications([]);
+          mockClearNotifications(log);
           mockInsertLog(log, 1);
           mockDeleteLog(log);
           mockUpdateLog(log, 1);
@@ -145,7 +181,10 @@ void main() {
             log.id = 1;
             return [log];
           });
-          sut = LogProvider(mockDbService);
+          sut = LogProvider(
+            dbService: mockDbService,
+            notificationService: mockNotificationService,
+          );
 
           await sut.add(log);
           await sut.delete(log);
@@ -158,6 +197,8 @@ void main() {
         () async {
           Log log = createBlankLog();
           mockGetLogs([]);
+          mockGetNotifications([]);
+          mockClearNotifications(log);
           mockInsertLog(log, 1);
           mockDeleteLog(log);
           mockUpdateLog(log, 1);
@@ -165,7 +206,10 @@ void main() {
             log.id = 1;
             return [log];
           });
-          sut = LogProvider(mockDbService);
+          sut = LogProvider(
+            dbService: mockDbService,
+            notificationService: mockNotificationService,
+          );
 
           await sut.delete(log);
           verifyNever(() => mockDbService.deleteLog(log));
@@ -183,8 +227,13 @@ void main() {
           Log log = createLog();
           Numeric n = Numeric(date: DateTime(2000), data: 10.0);
           mockGetLogs([log]);
+          mockGetNotifications([]);
+          mockClearNotifications(log);
           mockAddDataNumeric(log, n);
-          sut = LogProvider(mockDbService);
+          sut = LogProvider(
+            dbService: mockDbService,
+            notificationService: mockNotificationService,
+          );
 
           await Future.doWhile(() => !sut.loading);
 
@@ -200,8 +249,13 @@ void main() {
           Log log = createLog();
           Numeric n = Numeric(date: DateTime(2000), data: 10.0);
           mockGetLogs([]);
+          mockGetNotifications([]);
+          mockClearNotifications(log);
           mockAddDataNumeric(log, n);
-          sut = LogProvider(mockDbService);
+          sut = LogProvider(
+            dbService: mockDbService,
+            notificationService: mockNotificationService,
+          );
 
           await Future.doWhile(() => !sut.loading);
 
@@ -222,8 +276,13 @@ void main() {
           Log log = createLog();
           Numeric n = Numeric(date: DateTime(2000), data: 10.0);
           mockGetLogs([log]);
+          mockGetNotifications([]);
+          mockClearNotifications(log);
           mockDeleteDataNumeric(log, [n]);
-          sut = LogProvider(mockDbService);
+          sut = LogProvider(
+            dbService: mockDbService,
+            notificationService: mockNotificationService,
+          );
 
           await Future.doWhile(() => !sut.loading);
 
@@ -240,8 +299,13 @@ void main() {
           Log log = createLog();
           Numeric n = Numeric(date: DateTime(2000), data: 10.0);
           mockGetLogs([]);
+          mockGetNotifications([]);
+          mockClearNotifications(log);
           mockDeleteDataNumeric(log, [n]);
-          sut = LogProvider(mockDbService);
+          sut = LogProvider(
+            dbService: mockDbService,
+            notificationService: mockNotificationService,
+          );
 
           await Future.doWhile(() => !sut.loading);
 
@@ -262,8 +326,13 @@ void main() {
           Log log = createLog();
           Numeric n = Numeric(date: DateTime(2000), data: 10.0);
           mockGetLogs([log]);
+          mockGetNotifications([]);
+          mockClearNotifications(log);
           mockGetDataNumeric(log, [n]);
-          sut = LogProvider(mockDbService);
+          sut = LogProvider(
+            dbService: mockDbService,
+            notificationService: mockNotificationService,
+          );
 
           await Future.doWhile(() => !sut.loading);
 
@@ -281,8 +350,13 @@ void main() {
           Log log = createLog();
           Numeric n = Numeric(date: DateTime(2000), data: 10.0);
           mockGetLogs([]);
+          mockGetNotifications([]);
+          mockClearNotifications(log);
           mockDeleteDataNumeric(log, [n]);
-          sut = LogProvider(mockDbService);
+          sut = LogProvider(
+            dbService: mockDbService,
+            notificationService: mockNotificationService,
+          );
 
           await Future.doWhile(() => !sut.loading);
 
