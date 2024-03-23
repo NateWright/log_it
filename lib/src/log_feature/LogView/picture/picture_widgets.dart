@@ -110,6 +110,8 @@ class _PhotoAddDataFormState extends State<PhotoAddDataForm> {
                           ? Image.file(File(image!.path))
                           : const Text('Say Cheese'),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Padding(
                             padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
@@ -128,11 +130,13 @@ class _PhotoAddDataFormState extends State<PhotoAddDataForm> {
                             padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
                             child: ElevatedButton(
                               onPressed: () async {
-                                final XFile? path = await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (builder) =>
-                                            const CameraMain()));
+                                final path = await ImagePicker()
+                                    .pickImage(source: ImageSource.camera);
+                                // final XFile? path = await Navigator.push(
+                                //     context,
+                                //     MaterialPageRoute(
+                                //         builder: (builder) =>
+                                //             const CameraMain()));
                                 if (path == null) return;
                                 setState(() {
                                   image = path;
