@@ -57,10 +57,15 @@ void main() {
       when(() => mockDbService.clearNotifications(log)).thenAnswer((_) async {
         return;
       });
+  mockDeleteNotificationsBefore() =>
+      when(() => mockDbService.deleteBefore(any())).thenAnswer((_) async {
+        return;
+      });
 
   setUp(() {
     mockDbService = MockDbService();
     mockNotificationService = MockNotificationService();
+    mockDeleteNotificationsBefore();
   });
 
   group(
