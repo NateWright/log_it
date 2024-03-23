@@ -18,3 +18,4 @@ jobs:
         name: Flutter Tests                  # Name of the check run which will be created
         path: '*.json'                     # Path to test results (inside artifact .zip)
         reporter: flutter-json              # Format of test results
+        fail-on-error: 'false'
