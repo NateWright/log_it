@@ -21,3 +21,13 @@
 6. Open log_it repo in Android Studio
 7. Start android virtual device
 8. Click green triangle to launch program
+
+## Tests
+### Run tests locally
+Run all tests with `flutter test` while in the root of the repository
+
+### View test results from CI
+1. Go to [build-action](https://github.com/NateWright/log_it/actions/workflows/build-android.yml) on LogIt's GitHub page.
+2. Click on latest build at the top
+3. On the left, click on **Flutter Tests**
+4. Save or Print with browser's print function
