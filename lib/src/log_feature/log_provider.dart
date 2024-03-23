@@ -36,40 +36,19 @@ class LogProvider extends ChangeNotifier {
   // An unmodifiable view of the items in the cart.
   UnmodifiableListView<Log> get items => UnmodifiableListView(_items.values);
 
-  Future<bool> _scheduleNotification(Log log, int initial) async {
-    int id = await dbService.insertNotification(
-      LogNotification(
-        logID: log.id,
-        date: DateTime.fromMicrosecondsSinceEpoch(initial),
-      ),
-    );
-    if (log.dateRange.start != log.dateRange.end &&
-        DateTime.fromMicrosecondsSinceEpoch(initial)
-            .isAfter(log.dateRange.end)) {
-      return false;
-    }
-    await notificationService.scheduleNotification(
-      id: id,
-      title: log.title,
-      body: 'Enter data for your log',
-      payload: log.id.toString(),
-      dateTime: DateTime.fromMicrosecondsSinceEpoch(initial),
-    );
-    return true;
-  }
-
   void initializeLogNotification(Log log, DateTime now) async {
     if (!log.hasNotifications) return;
+
     final startDate = log.dateRange.start;
     final startTime = log.startTime;
     final start = DateTime(startDate.year, startDate.month, startDate.day,
         startDate.hour, startTime.minute);
     final notificationStart =
-        now.microsecondsSinceEpoch - start.microsecondsSinceEpoch;
+        now.millisecondsSinceEpoch - start.millisecondsSinceEpoch;
 
     int initial =
-        (notificationStart / log.interval.getDuration().inMicroseconds).ceil() +
-            start.microsecondsSinceEpoch;
+        (notificationStart / log.interval.getDuration().inMilliseconds).ceil() +
+            start.millisecondsSinceEpoch;
     for (var i = 0; i < 5; i++) {
       try {
         final result = await _scheduleNotification(log, initial);
@@ -80,7 +59,7 @@ class LogProvider extends ChangeNotifier {
         // Do not schedule
       }
 
-      initial += log.interval.getDuration().inMicroseconds;
+      initial += log.interval.getDuration().inMilliseconds;
     }
   }
 
@@ -206,34 +185,31 @@ class LogProvider extends ChangeNotifier {
   }
 
   Future<void> _cleanAndScheduleNotifications() async {
-    List<LogNotification> notificationList = await dbService.getNotifications();
     final now = DateTime.now();
-    // Check and delete old notifications
-    for (final n in notificationList) {
-      if (n.date.isBefore(now)) {
-        dbService.deleteNotification(n);
-      }
-    }
+    await dbService.deleteBefore(now);
+
+    List<LogNotification> notificationList = await dbService.getNotifications();
+
     // Insert notification so all have 5
     for (final log in _items.values) {
       if (!log.hasNotifications) continue;
 
-      List<LogNotification> logNotificationList =
+      List<LogNotification> notifications =
           await dbService.getLogNotifications(log.id);
-      final numNotifications = logNotificationList.length;
-      if (numNotifications == 0) {
+
+      if (notifications.isEmpty) {
         initializeLogNotification(log, now);
         continue;
       }
 
-      int initial = notificationList.first.date.microsecondsSinceEpoch;
+      int initial = notificationList.first.date.millisecondsSinceEpoch;
       for (var n in notificationList) {
-        if (n.date.microsecondsSinceEpoch > initial) {
-          initial = n.date.microsecondsSinceEpoch;
+        if (n.date.millisecondsSinceEpoch > initial) {
+          initial = n.date.millisecondsSinceEpoch;
         }
       }
-      for (var i = 0; i < 5 - numNotifications; i++) {
-        initial += log.interval.getDuration().inMicroseconds;
+      for (var i = 0; i < 5 - notifications.length; i++) {
+        initial += log.interval.getDuration().inMilliseconds;
         try {
           final result = await _scheduleNotification(log, initial);
           if (!result) {
@@ -244,5 +220,27 @@ class LogProvider extends ChangeNotifier {
         }
       }
     }
+  }
+
+  Future<bool> _scheduleNotification(Log log, int initial) async {
+    int id = await dbService.insertNotification(
+      LogNotification(
+        logID: log.id,
+        date: DateTime.fromMillisecondsSinceEpoch(initial),
+      ),
+    );
+    if (log.dateRange.start != log.dateRange.end &&
+        DateTime.fromMillisecondsSinceEpoch(initial)
+            .isAfter(log.dateRange.end)) {
+      return false;
+    }
+    await notificationService.scheduleNotification(
+      id: id,
+      title: log.title,
+      body: 'Enter data for your log',
+      payload: log.id.toString(),
+      dateTime: DateTime.fromMillisecondsSinceEpoch(initial),
+    );
+    return true;
   }
 }

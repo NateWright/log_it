@@ -52,7 +52,7 @@ class DbService {
         const String createLogs =
             'CREATE TABLE logs(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, description TEXT, dataType INTEGER, unit TEXT, hasNotifications INTEGER, dateRangeBegin TEXT, dateRangeEnd TEXT, startTimeHour INTEGER, startTimeMinute INTEGER, intervalInterval INTEGER, intervalUnit INTEGER);';
         const String createNotifications =
-            'CREATE TABLE notifications(id INTEGER PRIMARY KEY AUTOINCREMENT, log_id INTEGER, date TEXT);';
+            'CREATE TABLE notifications(id INTEGER PRIMARY KEY AUTOINCREMENT, log_id INTEGER, date INTEGER);';
         await database.execute(createLogs);
         await database.execute(createNotifications);
       },
@@ -79,7 +79,16 @@ class DbService {
       where: 'id = ?',
       whereArgs: [notification.id],
     );
-    return;
+  }
+
+  Future<void> deleteBefore(DateTime date) async {
+    final db = await database;
+
+    await db.delete(
+      'notifications',
+      where: 'date < ?',
+      whereArgs: [date.millisecondsSinceEpoch],
+    );
   }
 
   Future<void> clearNotifications(Log log) async {

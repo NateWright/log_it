@@ -11,13 +11,13 @@ class LogNotification {
   LogNotification.fromMap(Map<String, Object?> map)
       : id = map['id'] as int,
         logID = map['log_id'] as int,
-        date = DateTime.parse(map['date'] as String);
+        date = DateTime.fromMillisecondsSinceEpoch(map['date'] as int);
 
   Map<String, Object?> toMap() {
     return {
       'id': id == -1 ? null : id,
       'log_id': logID,
-      'date': date.toString(),
+      'date': date.millisecondsSinceEpoch,
     };
   }
 }
