@@ -1,12 +1,12 @@
 import 'dart:io';
 
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:log_it/src/components/form_date_picker.dart';
 import 'package:log_it/src/components/form_time_picker.dart';
 import 'package:log_it/src/log_feature/LogView/picture/SlideshowView/slideshow_view.dart';
 import 'package:log_it/src/log_feature/LogView/numeric/numeric_widgets.dart';
+import 'package:log_it/src/log_feature/LogView/picture/camera_widgets.dart';
 import 'package:log_it/src/log_feature/LogView/picture/picture_raw_data_view.dart';
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/log_provider.dart';
@@ -109,18 +109,38 @@ class _PhotoAddDataFormState extends State<PhotoAddDataForm> {
                       image != null
                           ? Image.file(File(image!.path))
                           : const Text('Say Cheese'),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            final image = await ImagePicker()
-                                .pickImage(source: ImageSource.gallery);
-                            setState(() {
-                              this.image = image;
-                            });
-                          },
-                          child: const Text('Select Photo'),
-                        ),
+                      Row(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                final image = await ImagePicker()
+                                    .pickImage(source: ImageSource.gallery);
+                                setState(() {
+                                  this.image = image;
+                                });
+                              },
+                              child: const Text('Select Photo'),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                  final XFile? path = await Navigator.push(context,
+                                      MaterialPageRoute(builder: (builder) => const CameraMain()));
+                                      if (path == null) return;
+                                      setState(() {
+                                        image = path;
+                                      });
+
+                              },
+                              child: const Text('Take Photo'),
+                            ),
+
+                          ),
+                        ],
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
