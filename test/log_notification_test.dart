@@ -43,7 +43,7 @@ void main() {
         final map = {
           'id': id,
           'log_id': logID,
-          'date': date.toString(),
+          'date': date.millisecondsSinceEpoch,
         };
         sut = LogNotification.fromMap(map);
         expect(sut.id, id);
@@ -61,7 +61,7 @@ void main() {
         final map = {
           'id': id,
           'log_id': logID,
-          'date': date.toString(),
+          'date': date.millisecondsSinceEpoch,
         };
         sut = LogNotification.fromMap(map);
         expect(sut.id, id);
@@ -83,7 +83,7 @@ void main() {
           final map = {
             'id': null,
             'log_id': logID,
-            'date': date.toString(),
+            'date': date.millisecondsSinceEpoch,
           };
           expect(sut.toMap(), map);
         },
@@ -98,7 +98,7 @@ void main() {
           final map = {
             'id': null,
             'log_id': logID,
-            'date': date.toString(),
+            'date': date.millisecondsSinceEpoch,
           };
           expect(sut.toMap(), map);
         },
@@ -112,7 +112,7 @@ void main() {
           final map = {
             'id': id,
             'log_id': logID,
-            'date': date.toString(),
+            'date': date.millisecondsSinceEpoch,
           };
           sut = LogNotification.fromMap(map);
           expect(sut.toMap(), map);
