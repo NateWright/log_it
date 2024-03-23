@@ -80,7 +80,6 @@ class LogProvider extends ChangeNotifier {
   Future<bool> _scheduleNotification(Log log, int initial) async {
     int id = await dbService.insertNotification(
       LogNotification(
-        id: -1,
         logID: log.id,
         date: DateTime.fromMicrosecondsSinceEpoch(initial),
       ),

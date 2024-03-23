@@ -1,13 +1,12 @@
 class LogNotification {
-  int id;
+  final int id;
   final int logID;
   final DateTime date;
 
   LogNotification({
-    required this.id,
     required this.logID,
     required this.date,
-  });
+  }) : id = -1;
 
   LogNotification.fromMap(Map<String, Object?> map)
       : id = map['id'] as int,

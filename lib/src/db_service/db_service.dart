@@ -63,12 +63,12 @@ class DbService {
   Future<int> insertNotification(LogNotification notification) async {
     final db = await database;
 
-    notification.id = await db.insert(
+    final id = await db.insert(
       'notifications',
       notification.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
-    return notification.id;
+    return id;
   }
 
   Future<void> deleteNotification(LogNotification notification) async {
