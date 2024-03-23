@@ -23,7 +23,7 @@ class LogProvider extends ChangeNotifier {
 
   LogProvider(this.dbService) {
     timer = Timer.periodic(
-      const Duration(minutes: 4),
+      const Duration(minutes: 3),
       (timer) => _cleanAndScheduleNotifications(),
     );
     _updateLogs().then((value) async {
@@ -48,23 +48,24 @@ class LogProvider extends ChangeNotifier {
       final numNotifications = logNotificationList.length;
       if (numNotifications == 0) {
         initializeLogNotification(log, now);
-      } else {
-        int initial = notificationList.first.date.microsecondsSinceEpoch;
-        for (var n in notificationList) {
-          if (n.date.microsecondsSinceEpoch > initial) {
-            initial = n.date.microsecondsSinceEpoch;
-          }
+        continue;
+      }
+
+      int initial = notificationList.first.date.microsecondsSinceEpoch;
+      for (var n in notificationList) {
+        if (n.date.microsecondsSinceEpoch > initial) {
+          initial = n.date.microsecondsSinceEpoch;
         }
-        for (var i = 0; i < 5 - numNotifications; i++) {
-          initial += log.interval.getDuration().inMicroseconds;
-          try {
-            final result = await _scheduleNotification(log, initial);
-            if (!result) {
-              break;
-            }
-          } catch (e) {
-            // Notification error
+      }
+      for (var i = 0; i < 5 - numNotifications; i++) {
+        initial += log.interval.getDuration().inMicroseconds;
+        try {
+          final result = await _scheduleNotification(log, initial);
+          if (!result) {
+            break;
           }
+        } catch (e) {
+          // Notification error
         }
       }
     }
