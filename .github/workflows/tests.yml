@@ -6,11 +6,11 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - uses: subosito/flutter-action@v1
-    - run: flutter test --machine > test-results.json
+    - run: flutter test --file-reporter json:reports/tests.json
     - name: Test Report
       uses: dorny/test-reporter@v1
       if: success() || failure()    # run this step even if previous step failed
       with:
-        name: JEST Tests            # Name of the check run which will be created
-        path: ./test-results.json    # Path to test results
+        name: Flutter Tests            # Name of the check run which will be created
+        path: ./reports/tests.json   # Path to test results
         reporter: flutter-json        # Format of test results
