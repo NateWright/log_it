@@ -1,9 +1,4 @@
-// Copyright 2013 The Flutter Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
-
 import 'dart:async';
-import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
@@ -55,7 +50,7 @@ class _CameraMainState extends State<CameraMain>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    futureCameras =  availableCameras();
+    futureCameras = availableCameras();
   }
 
   @override
@@ -89,47 +84,48 @@ class _CameraMainState extends State<CameraMain>
         title: const Text('Camera'),
       ),
       body: FutureBuilder(
-        future: futureCameras,
-        builder: (context, snapshot) {
-          if(!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator(),);
-          }
-          _cameras = snapshot.data!;
-          return Column(
-            children: <Widget>[
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    border: Border.all(
-                      color:
-                      controller != null && controller!.value.isRecordingVideo
-                          ? Colors.redAccent
-                          : Colors.grey,
-                      width: 3.0,
+          future: futureCameras,
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            _cameras = snapshot.data!;
+            return Column(
+              children: <Widget>[
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      border: Border.all(
+                        color: controller != null &&
+                                controller!.value.isRecordingVideo
+                            ? Colors.redAccent
+                            : Colors.grey,
+                        width: 3.0,
+                      ),
                     ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(1.0),
-                    child: Center(
-                      child: _cameraPreviewWidget(),
+                    child: Padding(
+                      padding: const EdgeInsets.all(1.0),
+                      child: Center(
+                        child: _cameraPreviewWidget(),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              _captureControlRowWidget(),
-              Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: Row(
-                  children: <Widget>[
-                    _cameraTogglesRowWidget(),
-                  ],
+                _captureControlRowWidget(),
+                Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Row(
+                    children: <Widget>[
+                      _cameraTogglesRowWidget(),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          );
-        }
-      ),
+              ],
+            );
+          }),
     );
   }
 
@@ -139,8 +135,7 @@ class _CameraMainState extends State<CameraMain>
 
     if (cameraController == null || !cameraController.value.isInitialized) {
       return const Text(
-        'Tap a camera'
-        ,
+        'Tap a camera',
         style: TextStyle(
           color: Colors.white,
           fontSize: 24.0,
@@ -155,10 +150,10 @@ class _CameraMainState extends State<CameraMain>
           controller!,
           child: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
-                return GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                );
-              }),
+            return GestureDetector(
+              behavior: HitTestBehavior.opaque,
+            );
+          }),
         ),
       );
     }
@@ -175,12 +170,11 @@ class _CameraMainState extends State<CameraMain>
           icon: const Icon(Icons.camera_alt),
           color: Colors.blue,
           onPressed: cameraController != null &&
-              cameraController.value.isInitialized &&
-              !cameraController.value.isRecordingVideo
+                  cameraController.value.isInitialized &&
+                  !cameraController.value.isRecordingVideo
               ? onTakePictureButtonPressed
               : null,
         ),
-
       ],
     );
   }
@@ -228,7 +222,6 @@ class _CameraMainState extends State<CameraMain>
         .showSnackBar(SnackBar(content: Text(message)));
   }
 
-
   Future<void> onNewCameraSelected(CameraDescription cameraDescription) async {
     if (controller != null) {
       return controller!.setDescription(cameraDescription);
@@ -262,27 +255,25 @@ class _CameraMainState extends State<CameraMain>
       WidgetsFlutterBinding.ensureInitialized();
       _cameras = await availableCameras();
 
-
       await cameraController.initialize();
-      await Future.wait(<Future<Object?>>[
-      ]);
+      await Future.wait(<Future<Object?>>[]);
     } on CameraException catch (e) {
       switch (e.code) {
         case 'CameraAccessDenied':
           showInSnackBar('You have denied camera access.');
         case 'CameraAccessDeniedWithoutPrompt':
-        // iOS only
+          // iOS only
           showInSnackBar('Please go to Settings app to enable camera access.');
         case 'CameraAccessRestricted':
-        // iOS only
+          // iOS only
           showInSnackBar('Camera access is restricted.');
         case 'AudioAccessDenied':
           showInSnackBar('You have denied audio access.');
         case 'AudioAccessDeniedWithoutPrompt':
-        // iOS only
+          // iOS only
           showInSnackBar('Please go to Settings app to enable audio access.');
         case 'AudioAccessRestricted':
-        // iOS only
+          // iOS only
           showInSnackBar('Audio access is restricted.');
         default:
           _showCameraException(e);
