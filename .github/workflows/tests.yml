@@ -6,12 +6,11 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - uses: subosito/flutter-action@v1
-    - run: flutter test
+    - run: flutter test --machine > test-results.json
     - name: Test Report
-      uses: phoenix-actions/test-reporting@v8
-      id: test-report               # Set ID reference for step
+      uses: dorny/test-reporter@v1
       if: success() || failure()    # run this step even if previous step failed
       with:
-        name: Dart Tests            # Name of the check run which will be created
-        path: reports/test-results.json    # Path to test results
-        reporter: flutter-json
+        name: JEST Tests            # Name of the check run which will be created
+        path: ./test-results.json    # Path to test results
+        reporter: flutter-json        # Format of test results
