@@ -30,6 +30,18 @@ void main() {
           expect(sut.date, date);
         },
       );
+
+      test(
+        'default 3',
+        () {
+          final date = DateTime(2020);
+          const logID = 3;
+          sut = LogNotification(logID: logID, date: date);
+          expect(sut.id, -1);
+          expect(sut.logID, logID);
+          expect(sut.date, date);
+        },
+      );
     },
   );
 
@@ -58,6 +70,24 @@ void main() {
         const id = 2;
         final date = DateTime(2022);
         const logID = 2;
+        final map = {
+          'id': id,
+          'log_id': logID,
+          'date': date.millisecondsSinceEpoch,
+        };
+        sut = LogNotification.fromMap(map);
+        expect(sut.id, id);
+        expect(sut.logID, logID);
+        expect(sut.date, date);
+      },
+    );
+
+    test(
+      'default 3',
+      () {
+        const id = 3;
+        final date = DateTime(2020);
+        const logID = 3;
         final map = {
           'id': id,
           'log_id': logID,
@@ -104,11 +134,11 @@ void main() {
         },
       );
       test(
-        'default 2',
+        'default 3',
         () {
-          const id = 2;
-          final date = DateTime(2022);
-          const logID = 2;
+          const id = 3;
+          final date = DateTime(2020);
+          const logID = 3;
           final map = {
             'id': id,
             'log_id': logID,
