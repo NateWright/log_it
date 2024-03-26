@@ -31,3 +31,12 @@ Run all tests with `flutter test` while in the root of the repository
 2. Click on latest build at the top
 3. On the left, click on **Flutter Tests**
 4. Save or Print with browser's print function
+
+## Installing app on Android
+### Requirements
+* Latest Android device running Android 14
+### Steps
+**Steps may vary depending on device use these as a general guide**
+* Download latest LogIt app from the releases page [HERE](https://github.com/NateWright/log_it/releases) from your Android device
+* Click on downloaded apk and hit install
+* Open app named log_it
