@@ -6,7 +6,6 @@ import 'package:log_it/src/components/form_date_picker.dart';
 import 'package:log_it/src/components/form_time_picker.dart';
 import 'package:log_it/src/log_feature/LogView/picture/SlideshowView/slideshow_view.dart';
 import 'package:log_it/src/log_feature/LogView/numeric/numeric_widgets.dart';
-import 'package:log_it/src/log_feature/LogView/picture/camera_widgets.dart';
 import 'package:log_it/src/log_feature/LogView/picture/picture_raw_data_view.dart';
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/log_provider.dart';
@@ -132,11 +131,6 @@ class _PhotoAddDataFormState extends State<PhotoAddDataForm> {
                               onPressed: () async {
                                 final path = await ImagePicker()
                                     .pickImage(source: ImageSource.camera);
-                                // final XFile? path = await Navigator.push(
-                                //     context,
-                                //     MaterialPageRoute(
-                                //         builder: (builder) =>
-                                //             const CameraMain()));
                                 if (path == null) return;
                                 setState(() {
                                   image = path;
