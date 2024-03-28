@@ -155,6 +155,14 @@ class DbService {
   Future<void> deleteLog(Log log) async {
     final db = await database;
 
+    if (log.dataType == DataType.picture) {
+      final appDir = await getApplicationDocumentsDirectory();
+      final dir = await Directory('${appDir.path}/${log.dbName}')
+          .create(recursive: true);
+
+      await dir.delete(recursive: true);
+    }
+
     await db.delete(
       'logs',
       where: 'id = ?',
