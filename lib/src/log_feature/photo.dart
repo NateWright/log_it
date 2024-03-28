@@ -19,4 +19,8 @@ class Photo {
   String toString() {
     return 'Picture(date: $date, data: $data)';
   }
+
+  String toCSV() {
+    return '$date, $data';
+  }
 }

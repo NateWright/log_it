@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:archive/archive_io.dart';
 import 'package:flutter/material.dart';
 import 'package:log_it/src/db_service/db_service.dart';
 import 'package:log_it/src/log_feature/graph_settings.dart';
@@ -10,6 +13,7 @@ import 'package:log_it/src/log_feature/numeric.dart';
 import 'package:log_it/src/log_feature/photo.dart';
 import 'package:log_it/src/notification_service/notification.dart';
 import 'package:log_it/src/notification_service/notification_service.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LogProvider extends ChangeNotifier {
@@ -134,6 +138,47 @@ class LogProvider extends ChangeNotifier {
     return dbService.deleteLogValuesNumeric(log, vals).then(
           (value) => notifyListeners(),
         );
+  }
+
+  Future<dynamic> exportData(Log log) async {
+    switch (log.dataType) {
+      case DataType.number:
+        if (log.dataType != DataType.number) {
+          return Uint8List.fromList([]);
+        }
+        final data = await dbService.getLogValuesNumeric(log);
+        List<int> bytes = [];
+        for (final d in data) {
+          bytes.addAll(utf8.encode('${d.toCSV()}\n'));
+        }
+        return Uint8List.fromList(bytes);
+
+      case DataType.picture:
+        final dir = await getApplicationDocumentsDirectory();
+        var outputDir =
+            await Directory('${dir.path}/tmp').create(recursive: true);
+        final tempArchive = '${outputDir.path}/output.zip';
+
+        var encoder = ZipFileEncoder();
+        encoder.create(tempArchive);
+
+        final data = await dbService.getLogValuesPhoto(log);
+        final csvFile = File('${outputDir.path}/data.csv');
+        final sink = csvFile.openWrite();
+
+        for (final d in data) {
+          sink.add(utf8.encode('${d.toCSV()}\n'));
+          encoder.addFile(File('${dir.path}/${log.dbName}/${d.data}'));
+        }
+        await sink.flush();
+        await sink.close();
+        encoder.addFile(csvFile);
+        encoder.close();
+        return tempArchive;
+
+      default:
+        throw UnimplementedError('Cannot export this datatype');
+    }
   }
 
   Future<List<Numeric>> getDataNumeric(Log log) async {

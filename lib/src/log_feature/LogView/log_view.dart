@@ -93,6 +93,14 @@ class LogView extends StatelessWidget {
                       child: Text('EDIT'),
                     ),
                   ),
+                  MenuItemButton(
+                    onPressed: () => logWidgets.exportData(),
+                    leadingIcon: const Icon(Icons.settings),
+                    child: const Padding(
+                      padding: EdgeInsets.fromLTRB(0, 12.0, 12, 12),
+                      child: Text('Export'),
+                    ),
+                  ),
                   _DeleteWidget(
                     log: log,
                     context: context,

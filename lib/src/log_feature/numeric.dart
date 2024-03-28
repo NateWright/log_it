@@ -19,4 +19,8 @@ class Numeric {
   String toString() {
     return 'Numeric(date: $date, data: $data)';
   }
+
+  String toCSV() {
+    return '$date, $data';
+  }
 }

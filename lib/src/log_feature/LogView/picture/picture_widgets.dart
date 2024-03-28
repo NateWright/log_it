@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:log_it/src/components/form_date_picker.dart';
 import 'package:log_it/src/components/form_time_picker.dart';
@@ -58,6 +59,16 @@ class PictureWidgets implements NumericWidgets {
         },
       ),
     ];
+  }
+
+  @override
+  exportData() async {
+    String archive = await _logProvider.exportData(_log);
+    final params = SaveFileDialogParams(
+      fileName: 'output.zip',
+      sourceFilePath: archive,
+    );
+    await FlutterFileDialog.saveFile(params: params);
   }
 }
 

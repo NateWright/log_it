@@ -29,6 +29,8 @@ dependencies:
   carousel_slider: ^4.2.1
   image_picker: ^1.0.7
   permission_handler: ^11.3.0
+  flutter_file_dialog: ^3.0.2
+  archive: ^3.4.10
   
 dev_dependencies:
   flutter_test:

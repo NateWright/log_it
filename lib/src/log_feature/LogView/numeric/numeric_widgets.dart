@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:log_it/src/components/form_date_picker.dart';
 import 'package:log_it/src/components/form_time_picker.dart';
 import 'package:log_it/src/log_feature/LogView/numeric/GraphView/graph_view.dart';
@@ -24,6 +25,12 @@ class NumericWidgets {
         _logProvider = logProvider;
 
   addData() => NumericAddDataForm(log: _log);
+
+  void exportData() async {
+    final data = await _logProvider.exportData(_log);
+    final params = SaveFileDialogParams(fileName: 'output.csv', data: data);
+    await FlutterFileDialog.saveFile(params: params);
+  }
 
   widgets() {
     final theme = Theme.of(_context);
