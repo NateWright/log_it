@@ -9,7 +9,6 @@ import 'package:fl_chart/fl_chart.dart';
 class GraphView extends StatefulWidget {
   static const routeName = '/graph_view';
   final Log log;
-
   const GraphView({super.key, required this.log});
 
   @override
@@ -264,10 +263,25 @@ class GraphWidget extends StatelessWidget {
     return SizedBox(width: 400, height: 300, child: child);
   }
 
+
   LineChart _lineChart() {
     return LineChart(
       LineChartData(
-        titlesData: const FlTitlesData(show: true),
+        titlesData: const FlTitlesData(
+        show: true,
+        rightTitles: AxisTitles(
+          sideTitles: SideTitles(showTitles: false),
+        ),
+        topTitles: AxisTitles(
+          sideTitles: SideTitles(showTitles: false),
+        ),
+        bottomTitles: AxisTitles(
+          sideTitles: SideTitles(showTitles: true)
+        ),
+        leftTitles: AxisTitles(
+          sideTitles: SideTitles(showTitles: true)
+        ),
+        ),
         backgroundColor: graphSettings.graphBackgroundColor.value,
         lineBarsData: [
           LineChartBarData(
@@ -287,6 +301,21 @@ class GraphWidget extends StatelessWidget {
   BarChart _barChart() {
     return BarChart(
       BarChartData(
+        titlesData: const FlTitlesData(
+        show: true,
+        rightTitles: AxisTitles(
+          sideTitles: SideTitles(showTitles: false),
+        ),
+        topTitles: AxisTitles(
+          sideTitles: SideTitles(showTitles: false),
+        ),
+        bottomTitles: AxisTitles(
+          sideTitles: SideTitles(showTitles: true)
+        ),
+        leftTitles: AxisTitles(
+          sideTitles: SideTitles(showTitles: true)
+        ),
+        ),
         backgroundColor: graphSettings.graphBackgroundColor.value,
         barGroups: [
           for (final (index, n) in dataPoints.indexed)

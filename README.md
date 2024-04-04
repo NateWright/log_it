@@ -18,7 +18,7 @@ LogIt is an App designed to simplify keeping track of daily life like your weigh
 3. Install Flutter [Download](https://docs.flutter.dev/get-started/install)
 4. Clone repo with `git clone https://github.com/NateWright/log_it.git`
 5. Get Dependencies
-    * Open the repo in the terminal and run `flutter pub get`
+   * Open the repo in the terminal and run `flutter pub get`
 6. Open log_it repo in Android Studio
 7. Start android virtual device
 8. Click green triangle to launch program
