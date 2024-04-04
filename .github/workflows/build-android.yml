@@ -11,9 +11,10 @@ jobs:
             cache: true
         - run: flutter pub get
         - run: flutter test
-        - run: flutter build apk --build-name=${{ github.run_number }}.0.0
+        - run: flutter build apk --build-name=${{ github.run_number }}.0.0 --build-number=${{ github.run_number }}
+        - run: mv ./build/app/outputs/flutter-apk/app-release.apk ./build/app/outputs/flutter-apk/log-it-${{ github.run_number }}.apk
         - uses: ncipollo/release-action@v1
           with:
               commit: main
               tag: v${{ github.run_number }}
-              artifacts: ./build/app/outputs/flutter-apk/app-release.apk
+              artifacts: ./build/app/outputs/flutter-apk/log-it-${{ github.run_number }}.apk
