@@ -11,7 +11,7 @@ jobs:
             cache: true
         - run: flutter pub get
         - run: flutter test
-        - run: flutter build apk
+        - run: flutter build apk --build-name=${{ github.run_number }}.0.0
         - uses: ncipollo/release-action@v1
           with:
               commit: main
