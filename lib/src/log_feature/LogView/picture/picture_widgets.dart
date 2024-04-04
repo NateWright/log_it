@@ -117,7 +117,10 @@ class _PhotoAddDataFormState extends State<PhotoAddDataForm> {
                   child: Column(
                     children: [
                       image != null
-                          ? Image.file(File(image!.path))
+                          ? Image.file(
+                              File(image!.path),
+                              height: 400,
+                            )
                           : const Text('Say Cheese'),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
