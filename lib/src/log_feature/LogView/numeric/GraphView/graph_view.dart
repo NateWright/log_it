@@ -263,24 +263,19 @@ class GraphWidget extends StatelessWidget {
     return SizedBox(width: 400, height: 300, child: child);
   }
 
-
   LineChart _lineChart() {
     return LineChart(
       LineChartData(
         titlesData: const FlTitlesData(
-        show: true,
-        rightTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
-        topTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
-        bottomTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: true)
-        ),
-        leftTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: true)
-        ),
+          show: true,
+          rightTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
+          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
         ),
         backgroundColor: graphSettings.graphBackgroundColor.value,
         lineBarsData: [
@@ -302,19 +297,15 @@ class GraphWidget extends StatelessWidget {
     return BarChart(
       BarChartData(
         titlesData: const FlTitlesData(
-        show: true,
-        rightTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
-        topTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: false),
-        ),
-        bottomTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: true)
-        ),
-        leftTitles: AxisTitles(
-          sideTitles: SideTitles(showTitles: true)
-        ),
+          show: true,
+          rightTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
+          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
         ),
         backgroundColor: graphSettings.graphBackgroundColor.value,
         barGroups: [
