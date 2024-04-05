@@ -267,6 +267,8 @@ class LogCreateFormState extends State<LogCreateForm> {
                                       inputFormatters: <TextInputFormatter>[
                                         FilteringTextInputFormatter.digitsOnly
                                       ],
+                                      initialValue:
+                                          log.interval.interval.toString(),
                                       validator: (value) {
                                         if (!log.hasNotifications) {
                                           return null;
