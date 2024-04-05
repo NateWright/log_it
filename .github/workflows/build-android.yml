@@ -15,6 +15,7 @@ jobs:
           run: |
             echo "$KEY_STORE" | base64 --decode > ./android/app/upload-keystore.jks
             echo "storeFile=upload-keystore.jks" >> ./android/key.properties
+            echo "keyPassword=$KEYSTORE_STORE_PASSWORD" >> ./android/key.properties
             echo "keyAlias=$KEYSTORE_KEY_ALIAS" >> ./android/key.properties
             echo "storePassword=$KEYSTORE_STORE_PASSWORD" >> ./android/key.properties
           env:
