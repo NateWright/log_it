@@ -27,12 +27,19 @@ enum GraphBackgroundColor {
 
 enum GraphType { line, bar }
 
+enum AggregateInterval { day, week, month, year }
+
+enum AggregateType { sum, average }
+
 class GraphSettings {
   GraphType graphType;
   GraphColor graphColor;
   GraphBackgroundColor graphBackgroundColor;
   bool isCurved;
   bool showGridLines;
+  bool aggregate;
+  AggregateInterval aggregateInterval;
+  AggregateType aggregateType;
 
   GraphSettings({
     this.graphType = GraphType.line,
@@ -40,6 +47,9 @@ class GraphSettings {
     this.graphBackgroundColor = GraphBackgroundColor.white,
     this.isCurved = false,
     this.showGridLines = true,
+    this.aggregate = false,
+    this.aggregateInterval = AggregateInterval.day,
+    this.aggregateType = AggregateType.sum,
   });
 
   Map<String, dynamic> toJson() {
@@ -50,14 +60,22 @@ class GraphSettings {
       'graphBackgroundColor': graphBackgroundColor.index,
       'isCurved': isCurved,
       'showGridLines': showGridLines,
+      'aggregate': aggregate,
+      'aggregateInterval': aggregateInterval.index,
+      'aggregateType': aggregateType.index
     };
   }
 
   GraphSettings.fromJson(Map<String, dynamic> settings)
-      : graphType = GraphType.values[settings['graphType'] as int],
-        graphColor = GraphColor.values[settings['graphColor'] as int],
+      : graphType = GraphType.values[(settings['graphType'] ?? 0) as int],
+        graphColor = GraphColor.values[(settings['graphColor'] ?? 0) as int],
         graphBackgroundColor = GraphBackgroundColor
-            .values[settings['graphBackgroundColor'] as int],
-        isCurved = settings['isCurved'] as bool,
-        showGridLines = settings['showGridLines'] as bool;
+            .values[(settings['graphBackgroundColor'] ?? 0) as int],
+        isCurved = (settings['isCurved'] ?? false) as bool,
+        showGridLines = (settings['showGridLines'] ?? true) as bool,
+        aggregate = (settings['aggregate'] ?? false) as bool,
+        aggregateInterval = AggregateInterval
+            .values[(settings['aggregateInterval'] ?? 0) as int],
+        aggregateType =
+            AggregateType.values[(settings['aggregateType'] ?? 0) as int];
 }
