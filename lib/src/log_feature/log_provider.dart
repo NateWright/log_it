@@ -46,7 +46,7 @@ class LogProvider extends ChangeNotifier {
     final startDate = log.dateRange.start;
     final startTime = log.startTime;
     final start = DateTime(startDate.year, startDate.month, startDate.day,
-        startDate.hour, startTime.minute);
+        startTime.hour, startTime.minute);
     final notificationStart =
         now.millisecondsSinceEpoch - start.millisecondsSinceEpoch;
 
