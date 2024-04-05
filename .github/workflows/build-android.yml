@@ -13,8 +13,18 @@ jobs:
         - run: flutter test
         - run: flutter build apk --build-name=${{ github.run_number }}.0.0 --build-number=${{ github.run_number }}
         - run: mv ./build/app/outputs/flutter-apk/app-release.apk ./build/app/outputs/flutter-apk/log-it-${{ github.run_number }}.apk
+        - uses: r0adkll/sign-android-release@v1
+          name: Sign app APK
+          # ID used to access action output
+          id: sign_app
+          with:
+            releaseDirectory: ./build/app/outputs/flutter-apk/
+            signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+            alias: ${{ secrets.ALIAS }}
+            keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
         - uses: ncipollo/release-action@v1
           with:
               commit: main
               tag: v${{ github.run_number }}
-              artifacts: ./build/app/outputs/flutter-apk/log-it-${{ github.run_number }}.apk
+              artifacts: ${{steps.sign_app.outputs.signedReleaseFile}}
+      
