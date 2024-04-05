@@ -11,20 +11,21 @@ jobs:
             cache: true
         - run: flutter pub get
         - run: flutter test
+        - name: Configure Keystore
+          run: |
+            echo "$KEY_STORE" | base64 --decode > ./upload-keystore.jks
+            echo "storeFile=./upload-keystore.jks" >> key.properties
+            echo "keyAlias=$KEYSTORE_KEY_ALIAS" >> key.properties
+            echo "storePassword=$KEYSTORE_STORE_PASSWORD" >> key.properties
+          env:
+            KEY_STORE: ${{ secrets.PLAY_STORE_UPLOAD_KEY }}
+            KEYSTORE_KEY_ALIAS: ${{ secrets.ALIAS }}
+            KEYSTORE_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
         - run: flutter build apk --build-name=${{ github.run_number }}.0.0 --build-number=${{ github.run_number }}
         - run: mv ./build/app/outputs/flutter-apk/app-release.apk ./build/app/outputs/flutter-apk/log-it-${{ github.run_number }}.apk
-        - uses: r0adkll/sign-android-release@v1
-          name: Sign app APK
-          # ID used to access action output
-          id: sign_app
-          with:
-            releaseDirectory: ./build/app/outputs/flutter-apk/
-            signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-            alias: ${{ secrets.ALIAS }}
-            keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
         - uses: ncipollo/release-action@v1
           with:
               commit: main
               tag: v${{ github.run_number }}
-              artifacts: ${{steps.sign_app.outputs.signedReleaseFile}}
+              artifacts: ./build/app/outputs/flutter-apk/log-it-${{ github.run_number }}.apk
       
