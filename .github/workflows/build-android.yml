@@ -19,7 +19,7 @@ jobs:
             echo "keyAlias=$KEYSTORE_KEY_ALIAS" >> ./android/key.properties
             echo "storePassword=$KEYSTORE_STORE_PASSWORD" >> ./android/key.properties
           env:
-            KEY_STORE: ${{ secrets.PLAY_STORE_UPLOAD_KEY }}
+            KEY_STORE: ${{ secrets.KEY_STORE }}
             KEYSTORE_KEY_ALIAS: ${{ secrets.ALIAS }}
             KEYSTORE_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
         - run: flutter build apk --build-name=${{ github.run_number }}.0.0 --build-number=${{ github.run_number }}
