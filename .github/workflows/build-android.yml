@@ -13,10 +13,10 @@ jobs:
         - run: flutter test
         - name: Configure Keystore
           run: |
-            echo "$KEY_STORE" | base64 --decode > ./upload-keystore.jks
-            echo "storeFile=./upload-keystore.jks" >> key.properties
-            echo "keyAlias=$KEYSTORE_KEY_ALIAS" >> key.properties
-            echo "storePassword=$KEYSTORE_STORE_PASSWORD" >> key.properties
+            echo "$KEY_STORE" | base64 --decode > ./android/upload-keystore.jks
+            echo "storeFile=upload-keystore.jks" >> ./android/key.properties
+            echo "keyAlias=$KEYSTORE_KEY_ALIAS" >> ./android/key.properties
+            echo "storePassword=$KEYSTORE_STORE_PASSWORD" >> ./android/key.properties
           env:
             KEY_STORE: ${{ secrets.PLAY_STORE_UPLOAD_KEY }}
             KEYSTORE_KEY_ALIAS: ${{ secrets.ALIAS }}
