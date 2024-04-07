@@ -209,52 +209,90 @@ class GraphViewState extends State<GraphView> {
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Curved:',
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                      Switch(
-                        value: graphSettings.isCurved,
-                        onChanged: (value) {
-                          setState(() {
-                            graphSettings.isCurved = value;
-                          });
-                        },
-                      ),
-                    ],
+                settingsItem(
+                  title: 'Aggregate',
+                  theme: theme,
+                  child: Switch(
+                    value: graphSettings.aggregate,
+                    onChanged: (value) {
+                      setState(() {
+                        graphSettings.aggregate = value;
+                      });
+                    },
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Aggregate:',
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                      Switch(
-                        value: graphSettings.aggregate,
-                        onChanged: (value) {
-                          setState(() {
-                            graphSettings.aggregate = value;
-                          });
-                        },
-                      ),
+                settingsItem(
+                  title: 'Aggregate Interval:',
+                  theme: theme,
+                  child: DropdownMenu<AggregateInterval>(
+                    enabled: graphSettings.aggregate,
+                    initialSelection: graphSettings.aggregateInterval,
+                    dropdownMenuEntries: [
+                      for (final v in AggregateInterval.values)
+                        DropdownMenuEntry<AggregateInterval>(
+                          value: v,
+                          label: v.name.toUpperCase(),
+                        )
                     ],
+                    onSelected: (value) {
+                      if (value == null) {
+                        return;
+                      }
+                      setState(() {
+                        graphSettings.aggregateInterval = value;
+                      });
+                    },
+                    hintText: 'Select Aggregate Interval',
+                  ),
+                ),
+                settingsItem(
+                  title: 'Aggregate Type:',
+                  theme: theme,
+                  child: DropdownMenu<AggregateType>(
+                    enabled: graphSettings.aggregate,
+                    initialSelection: graphSettings.aggregateType,
+                    dropdownMenuEntries: [
+                      for (final v in AggregateType.values)
+                        DropdownMenuEntry<AggregateType>(
+                          value: v,
+                          label: v.name.toUpperCase(),
+                        )
+                    ],
+                    onSelected: (value) {
+                      if (value == null) {
+                        return;
+                      }
+                      setState(() {
+                        graphSettings.aggregateType = value;
+                      });
+                    },
+                    hintText: 'Select Aggregate Type',
                   ),
                 ),
               ],
             );
           },
         ),
+      ),
+    );
+  }
+
+  Widget settingsItem(
+      {required String title,
+      required ThemeData theme,
+      required Widget child}) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            style: theme.textTheme.bodyLarge,
+          ),
+          child
+        ],
       ),
     );
   }
@@ -309,13 +347,21 @@ class GraphWidget extends StatelessWidget {
         primaryXAxis: DateTimeCategoryAxis(
           axisLine: AxisLine(color: graphSettings.foregroundColor),
           labelStyle: TextStyle(color: graphSettings.foregroundColor),
-          majorGridLines: MajorGridLines(color: graphSettings.foregroundColor),
+          majorGridLines: MajorGridLines(
+            color: graphSettings.showGridLines
+                ? graphSettings.foregroundColor
+                : Colors.transparent,
+          ),
           dateFormat: formatter,
         ),
         primaryYAxis: NumericAxis(
           axisLine: AxisLine(color: graphSettings.foregroundColor),
           labelStyle: TextStyle(color: graphSettings.foregroundColor),
-          majorGridLines: MajorGridLines(color: graphSettings.foregroundColor),
+          majorGridLines: MajorGridLines(
+            color: graphSettings.showGridLines
+                ? graphSettings.foregroundColor
+                : Colors.transparent,
+          ),
           title: AxisTitle(
             text: log.unit,
             textStyle: TextStyle(
