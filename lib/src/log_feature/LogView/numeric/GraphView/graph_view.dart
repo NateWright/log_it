@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:log_it/src/log_feature/graph_settings.dart';
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/log_provider.dart';
 import 'package:log_it/src/log_feature/numeric.dart';
 import 'package:provider/provider.dart';
-import 'package:fl_chart/fl_chart.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 class GraphView extends StatefulWidget {
   static const routeName = '/graph_view';
@@ -58,8 +59,14 @@ class GraphViewState extends State<GraphView> {
             GraphSettings graphSettings = gSettings!;
             return ListView(
               children: [
-                GraphWidget(
-                    dataPoints: dataPoints, graphSettings: graphSettings),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: GraphWidget(
+                    log: widget.log,
+                    dataPoints: dataPoints,
+                    graphSettings: graphSettings,
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                   child: Row(
@@ -159,7 +166,8 @@ class GraphViewState extends State<GraphView> {
                                         color.value),
                                 foregroundColor:
                                     MaterialStatePropertyAll<Color>(
-                                        getTextColorForBackground(color.value)),
+                                  getTextColorForBackground(color.value),
+                                ),
                               ),
                             )
                         ],
@@ -222,6 +230,27 @@ class GraphViewState extends State<GraphView> {
                     ],
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Aggregate:',
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                      Switch(
+                        value: graphSettings.aggregate,
+                        onChanged: (value) {
+                          setState(() {
+                            graphSettings.aggregate = value;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               ],
             );
           },
@@ -241,88 +270,86 @@ Color getTextColorForBackground(Color backgroundColor) {
 }
 
 class GraphWidget extends StatelessWidget {
+  final Log log;
   final List<Numeric> dataPoints;
   final GraphSettings graphSettings;
 
   const GraphWidget({
     super.key,
+    required this.log,
     required this.dataPoints,
     required this.graphSettings,
   });
   @override
   Widget build(BuildContext context) {
-    dynamic child;
+    dynamic series;
     switch (graphSettings.graphType) {
       case GraphType.bar:
-        child = _barChart();
+        series = _barChart();
       case GraphType.line:
-        child = _lineChart();
+        series = _lineChart();
       default:
         throw UnimplementedError();
     }
-    return SizedBox(width: 400, height: 300, child: child);
-  }
+    DateFormat formatter = DateFormat('HH:mm');
+    if (dataPoints.length >= 2) {
+      final firstPoint = dataPoints.first.date;
+      final lastPoint = dataPoints.last.date;
 
-  LineChart _lineChart() {
-    return LineChart(
-      LineChartData(
-        titlesData: const FlTitlesData(
-          show: true,
-          rightTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          topTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
-          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
+      if (lastPoint.isAfter(firstPoint.add(const Duration(days: 30)))) {
+        formatter = DateFormat("MM/YYYY");
+      } else if (lastPoint.isAfter(firstPoint.add(const Duration(days: 1)))) {
+        formatter = DateFormat("MM/dd");
+      }
+    }
+
+    return AspectRatio(
+      aspectRatio: 1,
+      child: SfCartesianChart(
+        primaryXAxis: DateTimeCategoryAxis(
+          axisLine: AxisLine(color: graphSettings.foregroundColor),
+          labelStyle: TextStyle(color: graphSettings.foregroundColor),
+          majorGridLines: MajorGridLines(color: graphSettings.foregroundColor),
+          dateFormat: formatter,
         ),
-        backgroundColor: graphSettings.graphBackgroundColor.value,
-        lineBarsData: [
-          LineChartBarData(
-            isCurved: graphSettings.isCurved,
-            spots: [
-              for (final (index, n) in dataPoints.indexed)
-                FlSpot(index.toDouble(), n.data)
-            ],
-            color: graphSettings.graphColor.value,
+        primaryYAxis: NumericAxis(
+          axisLine: AxisLine(color: graphSettings.foregroundColor),
+          labelStyle: TextStyle(color: graphSettings.foregroundColor),
+          majorGridLines: MajorGridLines(color: graphSettings.foregroundColor),
+          title: AxisTitle(
+            text: log.unit,
+            textStyle: TextStyle(
+              color: graphSettings.foregroundColor,
+            ),
           ),
-        ],
-        gridData: FlGridData(show: graphSettings.showGridLines),
+        ),
+        series: series,
+        backgroundColor: graphSettings.graphBackgroundColor.value,
+        plotAreaBorderColor: graphSettings.foregroundColor,
       ),
     );
   }
 
-  BarChart _barChart() {
-    return BarChart(
-      BarChartData(
-        titlesData: const FlTitlesData(
-          show: true,
-          rightTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          topTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
-          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
-        ),
-        backgroundColor: graphSettings.graphBackgroundColor.value,
-        barGroups: [
-          for (final (index, n) in dataPoints.indexed)
-            BarChartGroupData(
-              x: index,
-              barsSpace: 8,
-              barRods: [
-                BarChartRodData(
-                  toY: n.data,
-                  color: graphSettings.graphColor.value,
-                ),
-              ],
-            )
-        ],
-        gridData: FlGridData(show: graphSettings.showGridLines),
+  _lineChart() {
+    return <CartesianSeries>[
+      // Renders line chart
+      LineSeries<Numeric, DateTime>(
+        width: 4,
+        dataSource: dataPoints,
+        xValueMapper: (Numeric n, _) => n.date,
+        yValueMapper: (Numeric n, _) => n.data,
+        color: graphSettings.graphColor.value,
+      )
+    ];
+  }
+
+  _barChart() {
+    return <ColumnSeries<Numeric, DateTime>>[
+      ColumnSeries<Numeric, DateTime>(
+        dataSource: dataPoints,
+        xValueMapper: (Numeric n, _) => n.date,
+        yValueMapper: (Numeric n, _) => n.data,
       ),
-    );
+    ];
   }
 }

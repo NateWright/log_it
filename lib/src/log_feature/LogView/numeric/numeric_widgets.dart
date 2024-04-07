@@ -37,6 +37,7 @@ class NumericWidgets {
 
     return [
       _GraphWidget(
+        log: _log,
         dataPoints: _logProvider.getDataNumeric(_log),
         settings: _logProvider.logGetSettings(_log),
       ),
@@ -86,10 +87,12 @@ class NumericWidgets {
 
 class _GraphWidget extends StatelessWidget {
   const _GraphWidget({
+    required this.log,
     required this.dataPoints,
     required this.settings,
   });
 
+  final Log log;
   final Future<List<Numeric>> dataPoints;
   final Future<GraphSettings> settings;
 
@@ -103,7 +106,7 @@ class _GraphWidget extends StatelessWidget {
         }
         final d = snapshot.data![0] as List<Numeric>;
         final g = snapshot.data![1] as GraphSettings;
-        return GraphWidget(dataPoints: d, graphSettings: g);
+        return GraphWidget(log: log, dataPoints: d, graphSettings: g);
       },
     );
   }

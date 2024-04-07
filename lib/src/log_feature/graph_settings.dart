@@ -78,4 +78,13 @@ class GraphSettings {
             .values[(settings['aggregateInterval'] ?? 0) as int],
         aggregateType =
             AggregateType.values[(settings['aggregateType'] ?? 0) as int];
+
+  Color get foregroundColor {
+    if (ThemeData.estimateBrightnessForColor(graphBackgroundColor.value) ==
+        Brightness.dark) {
+      return Colors.white;
+    }
+
+    return Colors.black;
+  }
 }
