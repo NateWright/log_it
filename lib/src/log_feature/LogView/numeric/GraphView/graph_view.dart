@@ -262,24 +262,7 @@ class GraphWidget extends StatelessWidget {
     }
     return SizedBox(width: 400, height: 300, child: child);
   }
-  String _getLeftTitle() {
-    return 'Incomplete';
-  }
-
-  String _getBottomTitle() {
-  switch (graphSettings.aggregateInterval) {
-    case 0:
-      return 'Days';
-    case 1:
-      return 'Weeks';
-    case 2: return 'Months';
-    case 3: 
-      return 'Years';
-    default:
-      return 'Unknown';
-  }
-}
-
+  
   LineChart _lineChart() {
     return LineChart(
       LineChartData(
@@ -327,9 +310,13 @@ class GraphWidget extends StatelessWidget {
           topTitles: AxisTitles(
             sideTitles: SideTitles(showTitles: false),
           ),
-          bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true)),
+         bottomTitles: AxisTitles(
+            axisNameWidget: Text('Time'),
+            axisNameSize: 20,
+            sideTitles: SideTitles(showTitles: true)),
           leftTitles: AxisTitles(
-            axisNameWidget: Text('Pounds (Lbs)'),
+            axisNameWidget: Text('Units'),
+            axisNameSize: 20,
             sideTitles: SideTitles(showTitles: true)),
         ),
         backgroundColor: graphSettings.graphBackgroundColor.value,
