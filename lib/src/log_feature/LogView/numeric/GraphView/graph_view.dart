@@ -349,6 +349,7 @@ class GraphWidget extends StatelessWidget {
         dataSource: dataPoints,
         xValueMapper: (Numeric n, _) => n.date,
         yValueMapper: (Numeric n, _) => n.data,
+        color: graphSettings.graphColor.value,
       ),
     ];
   }
