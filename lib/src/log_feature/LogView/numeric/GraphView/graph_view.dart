@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:log_it/src/log_feature/graph_settings.dart';
 import 'package:log_it/src/log_feature/log.dart';
 import 'package:log_it/src/log_feature/log_provider.dart';
@@ -209,52 +210,90 @@ class GraphViewState extends State<GraphView> {
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Curved:',
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                      Switch(
-                        value: graphSettings.isCurved,
-                        onChanged: (value) {
-                          setState(() {
-                            graphSettings.isCurved = value;
-                          });
-                        },
-                      ),
-                    ],
+                settingsItem(
+                  title: 'Aggregate',
+                  theme: theme,
+                  child: Switch(
+                    value: graphSettings.aggregate,
+                    onChanged: (value) {
+                      setState(() {
+                        graphSettings.aggregate = value;
+                      });
+                    },
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Aggregate:',
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                      Switch(
-                        value: graphSettings.aggregate,
-                        onChanged: (value) {
-                          setState(() {
-                            graphSettings.aggregate = value;
-                          });
-                        },
-                      ),
+                settingsItem(
+                  title: 'Aggregate Interval:',
+                  theme: theme,
+                  child: DropdownMenu<AggregateInterval>(
+                    enabled: graphSettings.aggregate,
+                    initialSelection: graphSettings.aggregateInterval,
+                    dropdownMenuEntries: [
+                      for (final v in AggregateInterval.values)
+                        DropdownMenuEntry<AggregateInterval>(
+                          value: v,
+                          label: v.name.toUpperCase(),
+                        )
                     ],
+                    onSelected: (value) {
+                      if (value == null) {
+                        return;
+                      }
+                      setState(() {
+                        graphSettings.aggregateInterval = value;
+                      });
+                    },
+                    hintText: 'Select Aggregate Interval',
+                  ),
+                ),
+                settingsItem(
+                  title: 'Aggregate Type:',
+                  theme: theme,
+                  child: DropdownMenu<AggregateType>(
+                    enabled: graphSettings.aggregate,
+                    initialSelection: graphSettings.aggregateType,
+                    dropdownMenuEntries: [
+                      for (final v in AggregateType.values)
+                        DropdownMenuEntry<AggregateType>(
+                          value: v,
+                          label: v.name.toUpperCase(),
+                        )
+                    ],
+                    onSelected: (value) {
+                      if (value == null) {
+                        return;
+                      }
+                      setState(() {
+                        graphSettings.aggregateType = value;
+                      });
+                    },
+                    hintText: 'Select Aggregate Type',
                   ),
                 ),
               ],
             );
           },
         ),
+      ),
+    );
+  }
+
+  Widget settingsItem(
+      {required String title,
+      required ThemeData theme,
+      required Widget child}) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            style: theme.textTheme.bodyLarge,
+          ),
+          child
+        ],
       ),
     );
   }
@@ -283,24 +322,70 @@ class GraphWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     dynamic series;
-    switch (graphSettings.graphType) {
-      case GraphType.bar:
-        series = _barChart();
-      case GraphType.line:
-        series = _lineChart();
-      default:
-        throw UnimplementedError();
-    }
     DateFormat formatter = DateFormat('HH:mm');
     if (dataPoints.length >= 2) {
       final firstPoint = dataPoints.first.date;
       final lastPoint = dataPoints.last.date;
 
       if (lastPoint.isAfter(firstPoint.add(const Duration(days: 30)))) {
-        formatter = DateFormat("MM/YYYY");
+        formatter = DateFormat("MM/yyyy");
       } else if (lastPoint.isAfter(firstPoint.add(const Duration(days: 1)))) {
         formatter = DateFormat("MM/dd");
       }
+    }
+
+    List<Numeric> aggregatedData = [];
+    if(dataPoints.isNotEmpty && graphSettings.aggregate) {
+      dataPoints.sort(
+          (num1, num2) {
+            if (num1.date.isBefore(num2.date)) {
+              return -1;
+            }
+            return 1;
+          }
+      );
+      DateTime prevDate = dataPoints.first.date;
+      double prevSum = dataPoints.first.data;
+      int count = 1;
+      for (int i = 1; i < dataPoints.length; i++){
+        Numeric n = dataPoints[i];
+        if(checkAggregate(prevDate, n.date)){
+          prevSum += n.data;
+          count += 1;
+        } else {
+          switch(graphSettings.aggregateType) {
+            case AggregateType.sum:
+              break;
+            case AggregateType.average:
+              prevSum /= count;
+              break;
+          }
+          aggregatedData.add(Numeric(date: prevDate, data: prevSum));
+          prevDate = n.date;
+          prevSum = n.data;
+          count = 1;
+        }
+      }
+      switch(graphSettings.aggregateType) {
+        case AggregateType.sum:
+          break;
+        case AggregateType.average:
+          prevSum /= count;
+          break;
+      }
+      aggregatedData.add(Numeric(date: prevDate, data: prevSum));
+    } else {
+      aggregatedData = dataPoints;
+    }
+    print(aggregatedData);
+
+    switch (graphSettings.graphType) {
+      case GraphType.bar:
+        series = _barChart(aggregatedData);
+      case GraphType.line:
+        series = _lineChart(aggregatedData);
+      default:
+        throw UnimplementedError();
     }
 
     return AspectRatio(
@@ -309,13 +394,21 @@ class GraphWidget extends StatelessWidget {
         primaryXAxis: DateTimeCategoryAxis(
           axisLine: AxisLine(color: graphSettings.foregroundColor),
           labelStyle: TextStyle(color: graphSettings.foregroundColor),
-          majorGridLines: MajorGridLines(color: graphSettings.foregroundColor),
+          majorGridLines: MajorGridLines(
+            color: graphSettings.showGridLines
+                ? graphSettings.foregroundColor
+                : Colors.transparent,
+          ),
           dateFormat: formatter,
         ),
         primaryYAxis: NumericAxis(
           axisLine: AxisLine(color: graphSettings.foregroundColor),
           labelStyle: TextStyle(color: graphSettings.foregroundColor),
-          majorGridLines: MajorGridLines(color: graphSettings.foregroundColor),
+          majorGridLines: MajorGridLines(
+            color: graphSettings.showGridLines
+                ? graphSettings.foregroundColor
+                : Colors.transparent,
+          ),
           title: AxisTitle(
             text: log.unit,
             textStyle: TextStyle(
@@ -330,12 +423,12 @@ class GraphWidget extends StatelessWidget {
     );
   }
 
-  _lineChart() {
+  _lineChart(List<Numeric> data) {
     return <CartesianSeries>[
       // Renders line chart
       LineSeries<Numeric, DateTime>(
         width: 4,
-        dataSource: dataPoints,
+        dataSource: data,
         xValueMapper: (Numeric n, _) => n.date,
         yValueMapper: (Numeric n, _) => n.data,
         color: graphSettings.graphColor.value,
@@ -343,14 +436,42 @@ class GraphWidget extends StatelessWidget {
     ];
   }
 
-  _barChart() {
+  _barChart(List<Numeric> data) {
     return <ColumnSeries<Numeric, DateTime>>[
       ColumnSeries<Numeric, DateTime>(
-        dataSource: dataPoints,
+        dataSource: data,
         xValueMapper: (Numeric n, _) => n.date,
         yValueMapper: (Numeric n, _) => n.data,
         color: graphSettings.graphColor.value,
       ),
     ];
+  }
+  bool checkAggregate(DateTime prevDate, DateTime d) {
+    switch(graphSettings.aggregateInterval){
+      case AggregateInterval.day:
+        if(prevDate.day == d.day && prevDate.month == d.month && prevDate.year == d.year){
+          return true;
+        } else {
+          return false;
+        }
+      case AggregateInterval.week:
+        if(Jiffy.parseFromDateTime(prevDate).weekOfYear == Jiffy.parseFromDateTime(d).weekOfYear && prevDate.year == d.year){
+          return true;
+        } else {
+          return false;
+        }
+      case AggregateInterval.month:
+        if(prevDate.month == d.month && prevDate.year == d.year){
+          return true;
+        } else {
+          return false;
+        }
+      case AggregateInterval.year:
+        if(prevDate.year == d.year){
+          return true;
+        } else {
+          return false;
+        }
+    }
   }
 }
